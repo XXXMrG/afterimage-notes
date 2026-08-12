@@ -41,7 +41,7 @@ const nextItem = archiveItems[(itemIndex + 1) % archiveItems.length];
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <title>{item.title}｜余像札记</title>
   </head>
-  <body>
+  <body class="detail-page">
     <header class="detail-bar">
       <a class="detail-mark" href="/" aria-label="返回余像札记首页">
         <span>余像札记</span>
@@ -104,44 +104,56 @@ const nextItem = archiveItems[(itemIndex + 1) % archiveItems.length];
           <p class="detail-copy__creator">{item.creator}</p>
 
           <nav class="detail-variants" aria-label="切换视觉版本">
-            {item.variants.map((variant, index) => {
-              const style = styleSystems.find((candidate) => candidate.id === variant.styleId)!;
-              return (
-                <button
-                  type="button"
-                  data-variant-id={variant.id}
-                  aria-pressed={index === 0 ? 'true' : 'false'}
-                >
-                  {String(index + 1).padStart(2, '0')} {style.label}
-                </button>
-              );
-            })}
+            <p class="detail-variants__label">
+              <span>切换视觉版本</span>
+              <small>SELECT POSTER</small>
+            </p>
+            <div class="detail-variants__options">
+              {item.variants.map((variant, index) => {
+                const style = styleSystems.find((candidate) => candidate.id === variant.styleId)!;
+                return (
+                  <button
+                    type="button"
+                    data-variant-id={variant.id}
+                    aria-pressed={index === 0 ? 'true' : 'false'}
+                  >
+                    <b>{String(index + 1).padStart(2, '0')}</b>
+                    <span>{style.label}</span>
+                    <small>{style.englishLabel}</small>
+                  </button>
+                );
+              })}
+            </div>
           </nav>
 
-          <section class="detail-ai" aria-labelledby="ai-title">
-            <header>
-              <p>AI INTERPRETATION</p>
-              <h2 id="ai-title">AI 解读</h2>
-              <span aria-hidden="true"></span>
-            </header>
-            <p data-detail-interpretation>{firstVariant.interpretation}</p>
-          </section>
+          <div class="detail-reading">
+            <section class="detail-ai" aria-labelledby="ai-title">
+              <header>
+                <p>AI INTERPRETATION</p>
+                <h2 id="ai-title">AI 解读</h2>
+                <span aria-hidden="true"></span>
+              </header>
+              <p data-detail-interpretation>{firstVariant.interpretation}</p>
+            </section>
 
-          <section class="detail-source" aria-labelledby="source-title">
-            <p class="detail-source__label" id="source-title">
-              <span>作品背景</span>
-              <small>SOURCE CONTEXT</small>
-            </p>
-            <p>{item.background}</p>
-          </section>
+            <div class="detail-support">
+              <section class="detail-source" aria-labelledby="source-title">
+                <p class="detail-source__label" id="source-title">
+                  <span>作品背景</span>
+                  <small>SOURCE CONTEXT</small>
+                </p>
+                <p>{item.background}</p>
+              </section>
 
-          <p class="detail-style-note" data-detail-style-note>{firstStyle.shortDescription}</p>
+              <p class="detail-style-note" data-detail-style-note>{firstStyle.shortDescription}</p>
+            </div>
+          </div>
         </section>
 
         <nav class="detail-step" aria-label="相邻作品">
-          <a data-adjacent-work href={`/works/${previousItem.id}/`}>
-            <span aria-hidden="true">←</span>
-            <span>上一件</span>
+          <a class="detail-step__previous" data-adjacent-work href={`/works/${previousItem.id}/`}>
+            <span class="detail-step__arrow" aria-hidden="true">←</span>
+            <span class="detail-step__direction">上一件作品</span>
             <b>{previousItem.title}</b>
           </a>
           <a
@@ -152,10 +164,10 @@ const nextItem = archiveItems[(itemIndex + 1) % archiveItems.length];
             <span>返回作品目录</span>
             <b>{String(archiveStats.items).padStart(2, '0')} 件馆藏</b>
           </a>
-          <a data-adjacent-work href={`/works/${nextItem.id}/`}>
-            <span>下一件</span>
+          <a class="detail-step__next" data-adjacent-work href={`/works/${nextItem.id}/`}>
+            <span class="detail-step__direction">下一件作品</span>
             <b>{nextItem.title}</b>
-            <span aria-hidden="true">→</span>
+            <span class="detail-step__arrow" aria-hidden="true">→</span>
           </a>
         </nav>
       </article>
