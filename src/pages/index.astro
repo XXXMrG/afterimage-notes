@@ -7,9 +7,6 @@ import {
 } from '../content/archive';
 import '../styles/global.css';
 
-const firstItem = archiveItems[0];
-const firstVariant = firstItem.variants[0];
-const firstStyle = styleSystems.find((style) => style.id === firstVariant.styleId)!;
 const clientArchive = archiveItems.map((item) => ({
   ...item,
   typeLabel: mediaLabels[item.type],
@@ -30,125 +27,42 @@ const clientArchive = archiveItems.map((item) => ({
     <title>余像札记｜AI 文化海报档案</title>
   </head>
   <body>
-    <header class="site-bar">
-      <a class="site-mark" href="/" aria-label="余像札记首页">
-        <span>余像札记</span>
-        <span>Afterimage Notes</span>
-      </a>
-      <p class="site-bar__line">AI CULTURAL POSTER ARCHIVE</p>
-      <button
-        class="archive-trigger"
-        type="button"
-        data-open-archive
-        aria-haspopup="dialog"
-        aria-controls="archive-curtain"
-      >
-        <span>打开档案</span>
-        <span data-stage-position>{firstItem.archiveNo} / {String(archiveStats.items).padStart(2, '0')}</span>
-      </button>
-    </header>
+    <main class="archive-shell">
+      <header class="masthead" aria-labelledby="site-title">
+        <h1 id="site-title" class="masthead__title">余像札记<br />Afterimage Notes</h1>
+        <p class="masthead__intro">
+          同一个作品，<br />
+          可以留下不止一种余像。<br />
+          <span>AI 对歌曲、电影与书籍的视觉理解。</span>
+        </p>
+        <p class="masthead__meta">
+          CULTURAL POSTER ARCHIVE<br />
+          {String(archiveStats.items).padStart(2, '0')} WORKS / {String(archiveStats.posters).padStart(2, '0')} POSTERS / {String(archiveStats.styles).padStart(2, '0')} SYSTEMS
+        </p>
+        <a class="masthead__enter" href="#archive">进入档案 <span aria-hidden="true">↓</span></a>
+      </header>
 
-    <main>
-      <article
-        class="work-stage"
-        data-work-stage
-        style={`--accent:${firstVariant.accent}`}
-        aria-live="polite"
-      >
-        <p class="work-stage__folio" data-stage-folio>{firstItem.archiveNo}</p>
-
-        <figure class="poster-field">
-          <div class="poster-field__sheet">
-            <img
-              data-stage-image
-              src={firstVariant.image}
-              alt={firstVariant.alt}
-              width={firstVariant.width}
-              height={firstVariant.height}
-              decoding="async"
-            />
-            <i aria-hidden="true"></i>
-          </div>
-          <figcaption>
-            <span data-stage-style-en>{firstStyle.englishLabel}</span>
-            <span data-stage-variant-count>01 / {String(firstItem.variants.length).padStart(2, '0')}</span>
-          </figcaption>
-        </figure>
-
-        <section class="work-copy" aria-labelledby="current-work-title">
-          <p class="work-copy__eyebrow">
-            <span data-stage-type>{mediaLabels[firstItem.type]}</span>
-            <span><span data-stage-year>{firstItem.year}</span> · <span data-stage-context>{firstItem.context}</span></span>
-          </p>
-
-          <h1 id="current-work-title" data-stage-title>{firstItem.title}</h1>
-          <p class="work-copy__original" data-stage-original hidden></p>
-          <p class="work-copy__creator" data-stage-creator>{firstItem.creator}</p>
-
-          <div class="variant-nav" data-variant-nav aria-label="切换视觉版本"></div>
-
-          <section class="reading-block reading-block--source" aria-labelledby="source-label">
-            <p class="reading-block__label" id="source-label">作品背景 <span>Source context</span></p>
-            <p data-stage-background>{firstItem.background}</p>
-          </section>
-
-          <section class="reading-block reading-block--ai" aria-labelledby="ai-label">
-            <p class="reading-block__label" id="ai-label">AI 解读 <span>Interpretation</span></p>
-            <p data-stage-interpretation>{firstVariant.interpretation}</p>
-          </section>
-
-          <p class="work-copy__style-note" data-stage-style-note>{firstStyle.shortDescription}</p>
-        </section>
-
-        <nav class="work-step" aria-label="相邻作品">
-          <button type="button" data-step-work="-1">
-            <span aria-hidden="true">←</span>
-            <span>上一件</span>
-            <b data-prev-title>{archiveItems.at(-1)?.title}</b>
-          </button>
-          <button type="button" class="work-step__archive" data-open-archive>
-            <span>选择其他作品</span>
-            <b>{String(archiveStats.items).padStart(2, '0')} 件馆藏</b>
-          </button>
-          <button type="button" data-step-work="1">
-            <span>下一件</span>
-            <b data-next-title>{archiveItems[1].title}</b>
-            <span aria-hidden="true">→</span>
-          </button>
-        </nav>
-      </article>
-    </main>
-
-    <dialog
-      id="archive-curtain"
-      class="archive-curtain"
-      aria-labelledby="curtain-title"
-    >
-      <div class="curtain-shell">
-        <header class="curtain-header">
+      <section id="archive" class="archive" aria-labelledby="archive-heading">
+        <header class="archive__header">
           <div>
-            <p>AFTERIMAGE NOTES / SELECT A WORK</p>
-            <h2 id="curtain-title">打开档案</h2>
+            <p class="section-kicker">Archive index</p>
+            <h2 id="archive-heading">作品目录</h2>
           </div>
-          <p class="curtain-header__stats">
-            {String(archiveStats.items).padStart(2, '0')} WORKS<br />
-            {String(archiveStats.posters).padStart(2, '0')} POSTERS
+          <p class="archive__count" aria-live="polite">
+            <span data-visible-count>{archiveStats.items}</span> / {archiveStats.items}
           </p>
-          <button class="curtain-close" type="button" data-close-archive>
-            <span>收起档案</span><span aria-hidden="true">×</span>
-          </button>
         </header>
 
-        <div class="curtain-filters" aria-label="档案筛选">
+        <div class="filter-ledger" aria-label="档案筛选">
           <div class="filter-line" role="group" aria-label="按内容类型筛选">
-            <span>媒介</span>
+            <span class="filter-line__label">媒介</span>
             <button type="button" data-filter-type="all" aria-pressed="true">全部</button>
             {Object.entries(mediaLabels).map(([id, label]) => (
               <button type="button" data-filter-type={id} aria-pressed="false">{label}</button>
             ))}
           </div>
           <div class="filter-line" role="group" aria-label="按视觉风格筛选">
-            <span>视觉</span>
+            <span class="filter-line__label">视觉</span>
             <button type="button" data-filter-style="all" aria-pressed="true">全部</button>
             {styleSystems.map((style) => (
               <button type="button" data-filter-style={style.id} aria-pressed="false">{style.label}</button>
@@ -156,140 +70,169 @@ const clientArchive = archiveItems.map((item) => ({
           </div>
         </div>
 
-        <section class="selector-stage" data-selector-stage aria-label="翻阅作品">
-          <button class="selector-neighbor selector-neighbor--prev" type="button" data-turn-candidate="-1">
-            <span aria-hidden="true">←</span>
-            <small data-candidate-prev-no>{archiveItems.at(-1)?.archiveNo}</small>
-            <b data-candidate-prev-title>{archiveItems.at(-1)?.title}</b>
-          </button>
+        <div class="archive-layout">
+          <nav class="work-index" aria-label="作品目录">
+            <ol data-work-index>
+              {archiveItems.map((item, itemIndex) => (
+                <li>
+                  <button
+                    type="button"
+                    class="index-entry"
+                    data-select-work={item.id}
+                    data-item-type={item.type}
+                    data-item-styles={item.variants.map((variant) => variant.styleId).join(' ')}
+                    aria-current={itemIndex === 0 ? 'true' : undefined}
+                    style={`--entry-accent:${item.variants[0].accent}`}
+                  >
+                    <span class="index-entry__no">{item.archiveNo}</span>
+                    <span class="index-entry__title">{item.title}</span>
+                    <span class="index-entry__meta">{mediaLabels[item.type]} · {item.year}</span>
+                    <span class="index-entry__versions">{String(item.variants.length).padStart(2, '0')}</span>
+                  </button>
+                </li>
+              ))}
+            </ol>
+            <p class="empty-note" data-empty hidden>这个交叉条件下，还没有海报。</p>
+          </nav>
 
-          <article class="selector-focus" data-selector-focus>
-            <div class="selector-focus__poster">
+          <article class="viewer" data-viewer aria-live="polite" style={`--accent:${archiveItems[0].variants[0].accent}`}>
+            <div class="viewer__frame">
               <img
-                data-candidate-image
-                src={firstVariant.image}
-                alt=""
-                width={firstVariant.width}
-                height={firstVariant.height}
+                data-viewer-image
+                src={archiveItems[0].variants[0].image}
+                alt={archiveItems[0].variants[0].alt}
+                width={archiveItems[0].variants[0].width}
+                height={archiveItems[0].variants[0].height}
+                decoding="async"
               />
-              <span data-candidate-no>{firstItem.archiveNo}</span>
+              <span class="viewer__folio" data-viewer-folio>{archiveItems[0].archiveNo}</span>
             </div>
-            <div class="selector-focus__record">
-              <p class="selector-focus__meta">
-                <span data-candidate-type>{mediaLabels[firstItem.type]}</span>
-                <span data-candidate-year>{firstItem.year}</span>
-                <span><i data-candidate-variants>{firstItem.variants.length}</i> VISUALS</span>
+
+            <div class="viewer__notes">
+              <p class="viewer__eyebrow">
+                <span data-viewer-type>{mediaLabels[archiveItems[0].type]}</span>
+                <span><span data-viewer-year>{archiveItems[0].year}</span> / <span data-viewer-context>{archiveItems[0].context}</span></span>
               </p>
-              <h3 data-candidate-title>{firstItem.title}</h3>
-              <p class="selector-focus__original" data-candidate-original hidden></p>
-              <p class="selector-focus__creator" data-candidate-creator>{firstItem.creator}</p>
-              <button class="selector-focus__choose" type="button" data-choose-candidate>
-                <span>取出这件作品</span><span aria-hidden="true">↗</span>
-              </button>
+              <h3 data-viewer-title>{archiveItems[0].title}</h3>
+              <p class="viewer__original" data-viewer-original hidden></p>
+              <p class="viewer__creator" data-viewer-creator>{archiveItems[0].creator}</p>
+
+              <div class="variant-nav" data-variant-nav aria-label="海报风格版本"></div>
+
+              <div class="viewer__reading">
+                <span>AI interpretation</span>
+                <p data-viewer-interpretation>{archiveItems[0].variants[0].interpretation}</p>
+              </div>
+
+              <p class="viewer__style-note" data-viewer-style-note>{styleSystems[0].shortDescription}</p>
+
+              <a
+                class="viewer__open"
+                data-viewer-open
+                href={`/works/${archiveItems[0].id}/?poster=${archiveItems[0].variants[0].id}`}
+              >
+                <span>进入完整作品</span><span aria-hidden="true">↗</span>
+              </a>
             </div>
           </article>
+        </div>
+      </section>
 
-          <button class="selector-neighbor selector-neighbor--next" type="button" data-turn-candidate="1">
-            <small data-candidate-next-no>{archiveItems[1].archiveNo}</small>
-            <b data-candidate-next-title>{archiveItems[1].title}</b>
-            <span aria-hidden="true">→</span>
-          </button>
-        </section>
-
-        <p class="curtain-empty" data-curtain-empty hidden>这组交叉条件下，还没有可以取出的海报。</p>
-
-        <footer class="curtain-index">
-          <p><span data-visible-count>{archiveStats.items}</span> 件作品 · 滑动或使用方向键翻阅</p>
-          <nav data-candidate-rail aria-label="档案编号"></nav>
-        </footer>
-      </div>
-    </dialog>
+      <footer class="site-footer">
+        <p>不是复述作品，也不是还原情节。每张海报保存的是模型在一次阅读之后，选择留下的那个视觉关系。</p>
+        <p>Archive grows by work × interpretation × visual system.</p>
+      </footer>
+    </main>
 
     <script is:inline id="archive-data" type="application/json" set:html={JSON.stringify({ items: clientArchive, styles: styleSystems })}></script>
     <script is:inline>
       const payload = JSON.parse(document.getElementById('archive-data').textContent);
       const items = payload.items;
       const styles = payload.styles;
-      const url = new URL(window.location.href);
-      const requestedItem = items.find((item) => item.id === url.searchParams.get('work'));
-      const requestedVariant = requestedItem?.variants.find((variant) => variant.id === url.searchParams.get('poster'));
+      const pageUrl = new URL(window.location.href);
+      const requestedItem = items.find((item) => item.id === pageUrl.searchParams.get('work'));
+      const requestedVariant = requestedItem?.variants.find((variant) => variant.id === pageUrl.searchParams.get('poster'));
       const state = {
+        type: 'all',
+        style: 'all',
         itemId: requestedItem?.id ?? items[0].id,
         variantId: requestedVariant?.id ?? requestedItem?.variants[0].id ?? items[0].variants[0].id,
-        filterType: 'all',
-        filterStyle: 'all',
-        candidateId: requestedItem?.id ?? items[0].id,
       };
 
-      const stage = document.querySelector('[data-work-stage]');
-      const dialog = document.getElementById('archive-curtain');
-      const variantNav = document.querySelector('[data-variant-nav]');
       const typeButtons = [...document.querySelectorAll('[data-filter-type]')];
       const styleButtons = [...document.querySelectorAll('[data-filter-style]')];
-      const selectorFocus = document.querySelector('[data-selector-focus]');
-      const selectorStage = document.querySelector('[data-selector-stage]');
-      const rail = document.querySelector('[data-candidate-rail]');
-      const empty = document.querySelector('[data-curtain-empty]');
-      let closeTimer;
-      let wheelLock = false;
-      let pointerStart = null;
+      const indexButtons = [...document.querySelectorAll('[data-select-work]')];
+      const viewer = document.querySelector('[data-viewer]');
+      const visibleCount = document.querySelector('[data-visible-count]');
+      const emptyNote = document.querySelector('[data-empty]');
+      const variantNav = document.querySelector('[data-variant-nav]');
 
-      const getStyle = (id) => styles.find((style) => style.id === id);
-      const getItem = (id) => items.find((item) => item.id === id);
-      const getVariant = (item, id) => item.variants.find((variant) => variant.id === id) ?? item.variants[0];
-      const filteredItems = () => items.filter((item) => {
-        const typeMatch = state.filterType === 'all' || item.type === state.filterType;
-        const styleMatch = state.filterStyle === 'all' || item.variants.some((variant) => variant.styleId === state.filterStyle);
+      const getStyle = (styleId) => styles.find((style) => style.id === styleId);
+      const syncUrl = () => {
+        if (!state.itemId || !state.variantId) return;
+        const nextUrl = new URL(window.location.href);
+        nextUrl.searchParams.set('work', state.itemId);
+        nextUrl.searchParams.set('poster', state.variantId);
+        history.replaceState(null, '', `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`);
+      };
+      const matches = (item) => {
+        const typeMatch = state.type === 'all' || item.type === state.type;
+        const styleMatch = state.style === 'all' || item.variants.some((variant) => variant.styleId === state.style);
         return typeMatch && styleMatch;
-      });
-      const wrap = (index, length) => (index % length + length) % length;
-      const setText = (selector, value, root = document) => {
-        const node = root.querySelector(selector);
-        if (node) node.textContent = value;
       };
 
-      function updateUrl(item, variant) {
-        const next = new URL(window.location.href);
-        next.searchParams.set('work', item.id);
-        next.searchParams.set('poster', variant.id);
-        history.replaceState(null, '', `${next.pathname}${next.search}${next.hash}`);
+      function availableVariants(item) {
+        return state.style === 'all'
+          ? item.variants
+          : item.variants.filter((variant) => variant.styleId === state.style);
       }
 
-      function renderStage(animate = false) {
-        const item = getItem(state.itemId);
-        let variant = getVariant(item, state.variantId);
-        state.variantId = variant.id;
-        const style = getStyle(variant.styleId);
-        const itemIndex = items.indexOf(item);
-        const variantIndex = item.variants.indexOf(variant);
-        const image = stage.querySelector('[data-stage-image]');
+      function selectFirstVisible() {
+        const visibleItems = items.filter(matches);
+        if (!visibleItems.some((item) => item.id === state.itemId)) {
+          state.itemId = visibleItems[0]?.id ?? null;
+          state.variantId = visibleItems[0] ? availableVariants(visibleItems[0])[0]?.id : null;
+        }
+        return visibleItems;
+      }
 
-        if (animate) stage.classList.add('is-changing');
+      function renderViewer() {
+        const item = items.find((candidate) => candidate.id === state.itemId);
+        if (!item) {
+          viewer.hidden = true;
+          return;
+        }
+
+        const variants = availableVariants(item);
+        let variant = variants.find((candidate) => candidate.id === state.variantId);
+        if (!variant) {
+          variant = variants[0];
+          state.variantId = variant.id;
+        }
+        const style = getStyle(variant.styleId);
+        viewer.hidden = false;
+        viewer.style.setProperty('--accent', variant.accent);
+
+        const image = viewer.querySelector('[data-viewer-image]');
+        image.classList.add('is-changing');
         image.src = variant.image;
         image.alt = variant.alt;
         image.width = variant.width;
         image.height = variant.height;
-        image.onload = () => stage.classList.remove('is-changing');
-        if (image.complete) requestAnimationFrame(() => stage.classList.remove('is-changing'));
+        image.onload = () => image.classList.remove('is-changing');
+        if (image.complete) image.classList.remove('is-changing');
 
-        stage.style.setProperty('--accent', variant.accent);
-        stage.dataset.longTitle = String(item.title.length > 22);
-        setText('[data-stage-folio]', item.archiveNo, stage);
-        setText('[data-stage-position]', `${item.archiveNo} / ${String(items.length).padStart(2, '0')}`);
-        setText('[data-stage-style-en]', style.englishLabel, stage);
-        setText('[data-stage-variant-count]', `${String(variantIndex + 1).padStart(2, '0')} / ${String(item.variants.length).padStart(2, '0')}`, stage);
-        setText('[data-stage-type]', item.typeLabel, stage);
-        setText('[data-stage-year]', item.year, stage);
-        setText('[data-stage-context]', item.context, stage);
-        setText('[data-stage-title]', item.title, stage);
-        setText('[data-stage-creator]', item.creator, stage);
-        setText('[data-stage-background]', item.background, stage);
-        setText('[data-stage-interpretation]', variant.interpretation, stage);
-        setText('[data-stage-style-note]', style.shortDescription, stage);
-        setText('[data-prev-title]', items[wrap(itemIndex - 1, items.length)].title);
-        setText('[data-next-title]', items[wrap(itemIndex + 1, items.length)].title);
+        viewer.querySelector('[data-viewer-folio]').textContent = item.archiveNo;
+        viewer.querySelector('[data-viewer-type]').textContent = item.typeLabel;
+        viewer.querySelector('[data-viewer-year]').textContent = item.year;
+        viewer.querySelector('[data-viewer-context]').textContent = item.context;
+        viewer.querySelector('[data-viewer-title]').textContent = item.title;
+        viewer.querySelector('[data-viewer-creator]').textContent = item.creator;
+        viewer.querySelector('[data-viewer-interpretation]').textContent = variant.interpretation;
+        viewer.querySelector('[data-viewer-style-note]').textContent = style.shortDescription;
+        viewer.querySelector('[data-viewer-open]').href = `/works/${item.id}/?poster=${variant.id}`;
 
-        const original = stage.querySelector('[data-stage-original]');
+        const original = viewer.querySelector('[data-viewer-original]');
         original.textContent = item.originalTitle ?? '';
         original.hidden = !item.originalTitle;
 
@@ -298,193 +241,62 @@ const clientArchive = archiveItems.map((item) => ({
           const candidateStyle = getStyle(candidate.styleId);
           const button = document.createElement('button');
           button.type = 'button';
+          button.dataset.selectVariant = candidate.id;
           button.textContent = `${String(index + 1).padStart(2, '0')} ${candidateStyle.label}`;
-          button.setAttribute('aria-pressed', String(candidate.id === variant.id));
+          button.setAttribute('aria-pressed', candidate.id === variant.id ? 'true' : 'false');
+          if (state.style !== 'all' && candidate.styleId !== state.style) button.hidden = true;
           button.addEventListener('click', () => {
             state.variantId = candidate.id;
-            renderStage(true);
+            renderViewer();
+            syncUrl();
           });
           variantNav.append(button);
         });
-        variantNav.hidden = item.variants.length < 2;
-        updateUrl(item, variant);
+        variantNav.hidden = variants.length <= 1;
       }
 
-      function preferredCandidateVariant(item) {
-        if (state.filterStyle === 'all') return item.variants[0];
-        return item.variants.find((variant) => variant.styleId === state.filterStyle) ?? item.variants[0];
-      }
+      function render() {
+        const visibleItems = selectFirstVisible();
+        visibleCount.textContent = String(visibleItems.length);
+        emptyNote.hidden = visibleItems.length !== 0;
 
-      function renderCandidate(turn = 0) {
-        const visible = filteredItems();
-        setText('[data-visible-count]', String(visible.length));
-        empty.hidden = visible.length !== 0;
-        selectorStage.hidden = visible.length === 0;
-        document.querySelector('.curtain-index').hidden = visible.length === 0;
-        if (!visible.length) return;
-
-        let index = visible.findIndex((item) => item.id === state.candidateId);
-        if (index < 0) index = 0;
-        if (turn) index = wrap(index + turn, visible.length);
-        const item = visible[index];
-        const previous = visible[wrap(index - 1, visible.length)];
-        const next = visible[wrap(index + 1, visible.length)];
-        const variant = preferredCandidateVariant(item);
-        state.candidateId = item.id;
-
-        const previousButton = document.querySelector('.selector-neighbor--prev');
-        const nextButton = document.querySelector('.selector-neighbor--next');
-        previousButton.classList.toggle('is-absent', visible.length <= 2);
-        previousButton.disabled = visible.length <= 2;
-        nextButton.classList.toggle('is-absent', visible.length <= 1);
-        nextButton.disabled = visible.length <= 1;
-
-        selectorFocus.classList.remove('is-turning');
-        void selectorFocus.offsetWidth;
-        selectorFocus.classList.add('is-turning');
-        const image = selectorFocus.querySelector('[data-candidate-image]');
-        image.src = variant.image;
-        image.width = variant.width;
-        image.height = variant.height;
-        setText('[data-candidate-no]', item.archiveNo, selectorFocus);
-        setText('[data-candidate-type]', item.typeLabel, selectorFocus);
-        setText('[data-candidate-year]', item.year, selectorFocus);
-        setText('[data-candidate-variants]', String(item.variants.length), selectorFocus);
-        setText('[data-candidate-title]', item.title, selectorFocus);
-        setText('[data-candidate-creator]', item.creator, selectorFocus);
-        setText('[data-candidate-prev-no]', previous.archiveNo);
-        setText('[data-candidate-prev-title]', previous.title);
-        setText('[data-candidate-next-no]', next.archiveNo);
-        setText('[data-candidate-next-title]', next.title);
-
-        const original = selectorFocus.querySelector('[data-candidate-original]');
-        original.textContent = item.originalTitle ?? '';
-        original.hidden = !item.originalTitle;
-
-        rail.replaceChildren();
-        visible.forEach((candidate) => {
-          const button = document.createElement('button');
-          button.type = 'button';
-          button.dataset.railItem = candidate.id;
-          button.setAttribute('aria-label', `${candidate.archiveNo} ${candidate.title}`);
-          button.setAttribute('aria-current', candidate.id === item.id ? 'true' : 'false');
-          button.innerHTML = `<span>${candidate.archiveNo}</span><i></i>`;
-          button.addEventListener('click', () => {
-            state.candidateId = candidate.id;
-            renderCandidate();
-          });
-          rail.append(button);
+        indexButtons.forEach((button) => {
+          const item = items.find((candidate) => candidate.id === button.dataset.selectWork);
+          const visible = matches(item);
+          button.closest('li').hidden = !visible;
+          if (visible && item.id === state.itemId) button.setAttribute('aria-current', 'true');
+          else button.removeAttribute('aria-current');
         });
-        rail.querySelector('[aria-current="true"]')?.scrollIntoView({ block: 'nearest', inline: 'center' });
-      }
 
-      function openArchive() {
-        clearTimeout(closeTimer);
-        state.candidateId = state.itemId;
-        renderCandidate();
-        dialog.showModal();
-        document.body.classList.add('archive-is-open');
-        requestAnimationFrame(() => dialog.classList.add('is-open'));
-        dialog.querySelector('[data-choose-candidate]')?.focus({ preventScroll: true });
+        typeButtons.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.filterType === state.type)));
+        styleButtons.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.filterStyle === state.style)));
+        renderViewer();
       }
-
-      function closeArchive() {
-        dialog.classList.remove('is-open');
-        document.body.classList.remove('archive-is-open');
-        const finish = () => {
-          if (dialog.open) dialog.close();
-          document.querySelector('[data-open-archive]')?.focus({ preventScroll: true });
-        };
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) finish();
-        else closeTimer = setTimeout(finish, 260);
-      }
-
-      function chooseCandidate() {
-        const item = getItem(state.candidateId);
-        if (!item) return;
-        const variant = preferredCandidateVariant(item);
-        state.itemId = item.id;
-        state.variantId = variant.id;
-        renderStage(true);
-        closeArchive();
-        window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
-      }
-
-      function stepWork(direction) {
-        const item = getItem(state.itemId);
-        const index = items.indexOf(item);
-        const next = items[wrap(index + direction, items.length)];
-        state.itemId = next.id;
-        state.variantId = next.variants[0].id;
-        renderStage(true);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-
-      document.querySelectorAll('[data-open-archive]').forEach((button) => button.addEventListener('click', openArchive));
-      document.querySelector('[data-close-archive]').addEventListener('click', closeArchive);
-      document.querySelector('[data-choose-candidate]').addEventListener('click', chooseCandidate);
-      document.querySelectorAll('[data-turn-candidate]').forEach((button) => button.addEventListener('click', () => renderCandidate(Number(button.dataset.turnCandidate))));
-      document.querySelectorAll('[data-step-work]').forEach((button) => button.addEventListener('click', () => stepWork(Number(button.dataset.stepWork))));
 
       typeButtons.forEach((button) => button.addEventListener('click', () => {
-        state.filterType = button.dataset.filterType;
-        typeButtons.forEach((candidate) => candidate.setAttribute('aria-pressed', String(candidate === button)));
-        renderCandidate();
+        state.type = button.dataset.filterType;
+        render();
+        syncUrl();
       }));
+
       styleButtons.forEach((button) => button.addEventListener('click', () => {
-        state.filterStyle = button.dataset.filterStyle;
-        styleButtons.forEach((candidate) => candidate.setAttribute('aria-pressed', String(candidate === button)));
-        renderCandidate();
+        state.style = button.dataset.filterStyle;
+        render();
+        syncUrl();
       }));
 
-      dialog.addEventListener('cancel', (event) => {
-        event.preventDefault();
-        closeArchive();
-      });
-      dialog.addEventListener('click', (event) => {
-        if (event.target === dialog) closeArchive();
-      });
-      document.addEventListener('keydown', (event) => {
-        if (!dialog.open) return;
-        if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
-          event.preventDefault();
-          renderCandidate(-1);
+      indexButtons.forEach((button) => button.addEventListener('click', () => {
+        state.itemId = button.dataset.selectWork;
+        const item = items.find((candidate) => candidate.id === state.itemId);
+        state.variantId = availableVariants(item)[0].id;
+        render();
+        syncUrl();
+        if (window.matchMedia('(max-width: 820px)').matches) {
+          viewer.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-        if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
-          event.preventDefault();
-          renderCandidate(1);
-        }
-        if (event.key === 'Enter' && !event.target.matches('button')) chooseCandidate();
-      });
-      selectorStage.addEventListener('wheel', (event) => {
-        if (wheelLock || Math.abs(event.deltaY) < 12) return;
-        event.preventDefault();
-        wheelLock = true;
-        renderCandidate(event.deltaY > 0 ? 1 : -1);
-        setTimeout(() => { wheelLock = false; }, 360);
-      }, { passive: false });
-      selectorStage.addEventListener('pointerdown', (event) => {
-        pointerStart = { x: event.clientX, y: event.clientY };
-      });
-      selectorStage.addEventListener('pointerup', (event) => {
-        if (!pointerStart) return;
-        const dx = event.clientX - pointerStart.x;
-        const dy = event.clientY - pointerStart.y;
-        pointerStart = null;
-        if (Math.abs(dx) > 52 && Math.abs(dx) > Math.abs(dy)) renderCandidate(dx < 0 ? 1 : -1);
-      });
-      window.addEventListener('popstate', () => {
-        const currentUrl = new URL(window.location.href);
-        const item = getItem(currentUrl.searchParams.get('work'));
-        if (!item) return;
-        state.itemId = item.id;
-        state.variantId = item.variants.some((variant) => variant.id === currentUrl.searchParams.get('poster'))
-          ? currentUrl.searchParams.get('poster')
-          : item.variants[0].id;
-        renderStage();
-      });
+      }));
 
-      renderStage();
+      render();
     </script>
   </body>
 </html>

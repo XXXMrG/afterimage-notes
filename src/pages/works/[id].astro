@@ -1,0 +1,209 @@
+---
+import {
+  archiveItems,
+  archiveStats,
+  mediaLabels,
+  styleSystems,
+  type ArchiveItem,
+} from '../../content/archive';
+import '../../styles/global.css';
+import '../../styles/work-detail.css';
+
+export function getStaticPaths() {
+  return archiveItems.map((item, itemIndex) => ({
+    params: { id: item.id },
+    props: { item, itemIndex },
+  }));
+}
+
+type Props = {
+  item: ArchiveItem;
+  itemIndex: number;
+};
+
+const { item, itemIndex } = Astro.props;
+const firstVariant = item.variants[0];
+const firstStyle = styleSystems.find((style) => style.id === firstVariant.styleId)!;
+const previousItem = archiveItems[(itemIndex - 1 + archiveItems.length) % archiveItems.length];
+const nextItem = archiveItems[(itemIndex + 1) % archiveItems.length];
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content={`${item.title}：作品背景、AI 视觉解读与海报版本。`}
+    />
+    <meta name="theme-color" content="#d8d2c6" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>{item.title}｜余像札记</title>
+  </head>
+  <body>
+    <header class="detail-bar">
+      <a class="detail-mark" href="/" aria-label="返回余像札记首页">
+        <span>余像札记</span>
+        <span>Afterimage Notes</span>
+      </a>
+      <p>AI CULTURAL POSTER ARCHIVE</p>
+      <a
+        class="detail-back"
+        data-detail-back
+        href={`/?work=${item.id}&poster=${firstVariant.id}#archive`}
+      >
+        <span aria-hidden="true">←</span><span>返回作品目录</span>
+      </a>
+    </header>
+
+    <main>
+      <article
+        class="detail-stage"
+        data-detail-stage
+        style={`--accent:${firstVariant.accent}`}
+        aria-labelledby="work-title"
+      >
+        <p class="detail-folio">{item.archiveNo} / {String(archiveStats.items).padStart(2, '0')}</p>
+
+        <figure class="detail-poster">
+          <div class="detail-poster__sheet">
+            <img
+              data-detail-image
+              src={firstVariant.image}
+              alt={firstVariant.alt}
+              width={firstVariant.width}
+              height={firstVariant.height}
+              decoding="async"
+            />
+            <i aria-hidden="true"></i>
+          </div>
+          <figcaption>
+            <span data-detail-style>{firstStyle.englishLabel}</span>
+            <span data-detail-count>01 / {String(item.variants.length).padStart(2, '0')}</span>
+          </figcaption>
+        </figure>
+
+        <section class="detail-copy">
+          <p class="detail-copy__eyebrow">
+            <span>{mediaLabels[item.type]}</span>
+            <span>{item.year} · {item.context}</span>
+          </p>
+
+          <h1 id="work-title">{item.title}</h1>
+          {item.originalTitle && <p class="detail-copy__original">{item.originalTitle}</p>}
+          <p class="detail-copy__creator">{item.creator}</p>
+
+          <nav class="detail-variants" aria-label="切换视觉版本">
+            {item.variants.map((variant, index) => {
+              const style = styleSystems.find((candidate) => candidate.id === variant.styleId)!;
+              return (
+                <button
+                  type="button"
+                  data-variant-id={variant.id}
+                  aria-pressed={index === 0 ? 'true' : 'false'}
+                >
+                  {String(index + 1).padStart(2, '0')} {style.label}
+                </button>
+              );
+            })}
+          </nav>
+
+          <section class="detail-ai" aria-labelledby="ai-title">
+            <header>
+              <p>AI INTERPRETATION</p>
+              <h2 id="ai-title">AI 解读</h2>
+              <span aria-hidden="true"></span>
+            </header>
+            <p data-detail-interpretation>{firstVariant.interpretation}</p>
+          </section>
+
+          <section class="detail-source" aria-labelledby="source-title">
+            <p class="detail-source__label" id="source-title">
+              <span>作品背景</span>
+              <small>SOURCE CONTEXT</small>
+            </p>
+            <p>{item.background}</p>
+          </section>
+
+          <p class="detail-style-note" data-detail-style-note>{firstStyle.shortDescription}</p>
+        </section>
+
+        <nav class="detail-step" aria-label="相邻作品">
+          <a href={`/works/${previousItem.id}/`}>
+            <span aria-hidden="true">←</span>
+            <span>上一件</span>
+            <b>{previousItem.title}</b>
+          </a>
+          <a
+            class="detail-step__index"
+            data-detail-index
+            href={`/?work=${item.id}&poster=${firstVariant.id}#archive`}
+          >
+            <span>返回作品目录</span>
+            <b>{String(archiveStats.items).padStart(2, '0')} 件馆藏</b>
+          </a>
+          <a href={`/works/${nextItem.id}/`}>
+            <span>下一件</span>
+            <b>{nextItem.title}</b>
+            <span aria-hidden="true">→</span>
+          </a>
+        </nav>
+      </article>
+    </main>
+
+    <script
+      is:inline
+      id="work-data"
+      type="application/json"
+      set:html={JSON.stringify({ item, styles: styleSystems })}
+    ></script>
+    <script is:inline>
+      const payload = JSON.parse(document.getElementById('work-data').textContent);
+      const item = payload.item;
+      const styles = payload.styles;
+      const stage = document.querySelector('[data-detail-stage]');
+      const image = document.querySelector('[data-detail-image]');
+      const variantButtons = [...document.querySelectorAll('[data-variant-id]')];
+      const url = new URL(window.location.href);
+      const requested = item.variants.find((variant) => variant.id === url.searchParams.get('poster'));
+      let activeId = requested?.id ?? item.variants[0].id;
+
+      function renderVariant(animate = false) {
+        const variant = item.variants.find((candidate) => candidate.id === activeId) ?? item.variants[0];
+        const style = styles.find((candidate) => candidate.id === variant.styleId);
+        const variantIndex = item.variants.indexOf(variant);
+        activeId = variant.id;
+
+        if (animate) stage.classList.add('is-changing');
+        image.src = variant.image;
+        image.alt = variant.alt;
+        image.width = variant.width;
+        image.height = variant.height;
+        image.onload = () => stage.classList.remove('is-changing');
+        if (image.complete) requestAnimationFrame(() => stage.classList.remove('is-changing'));
+
+        stage.style.setProperty('--accent', variant.accent);
+        document.querySelector('[data-detail-style]').textContent = style.englishLabel;
+        document.querySelector('[data-detail-count]').textContent = `${String(variantIndex + 1).padStart(2, '0')} / ${String(item.variants.length).padStart(2, '0')}`;
+        document.querySelector('[data-detail-interpretation]').textContent = variant.interpretation;
+        document.querySelector('[data-detail-style-note]').textContent = style.shortDescription;
+        variantButtons.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.variantId === variant.id)));
+
+        const homeHref = `/?work=${item.id}&poster=${variant.id}#archive`;
+        document.querySelector('[data-detail-back]').href = homeHref;
+        document.querySelector('[data-detail-index]').href = homeHref;
+        const nextUrl = new URL(window.location.href);
+        nextUrl.searchParams.set('poster', variant.id);
+        history.replaceState(null, '', `${nextUrl.pathname}${nextUrl.search}`);
+      }
+
+      variantButtons.forEach((button) => button.addEventListener('click', () => {
+        activeId = button.dataset.variantId;
+        renderVariant(true);
+      }));
+
+      renderVariant();
+    </script>
+  </body>
+</html>
