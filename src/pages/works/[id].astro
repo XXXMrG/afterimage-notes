@@ -52,7 +52,7 @@ const nextItem = archiveItems[(itemIndex + 1) % archiveItems.length];
       <a
         class="detail-back"
         data-detail-back
-        href={`/?work=${item.id}&poster=${firstVariant.id}#archive`}
+        href={`/archive/?work=${item.id}&poster=${firstVariant.id}`}
       >
         <span aria-hidden="true">←</span><span>返回作品目录</span>
       </a>
@@ -148,7 +148,7 @@ const nextItem = archiveItems[(itemIndex + 1) % archiveItems.length];
           <a
             class="detail-step__index"
             data-detail-index
-            href={`/?work=${item.id}&poster=${firstVariant.id}#archive`}
+            href={`/archive/?work=${item.id}&poster=${firstVariant.id}`}
           >
             <span>返回作品目录</span>
             <b>{String(archiveStats.items).padStart(2, '0')} 件馆藏</b>

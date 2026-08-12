@@ -61,15 +61,15 @@ function safeReturnPath() {
 const originalReturn = safeReturnPath();
 
 function returnHref(variant: Variant) {
-  const target = new URL(originalReturn ?? '/', window.location.origin);
+  const target = new URL(originalReturn ?? '/archive/', window.location.origin);
   const filteredStyle = target.searchParams.get('style');
   if (filteredStyle && filteredStyle !== 'all' && filteredStyle !== variant.styleId) {
     target.searchParams.set('style', variant.styleId);
   }
   target.searchParams.set('work', item.id);
   target.searchParams.set('poster', variant.id);
-  target.hash = 'archive';
-  return `${target.pathname}${target.search}${target.hash}`;
+  target.hash = '';
+  return `${target.pathname}${target.search}`;
 }
 
 function updateAdjacentLinks() {

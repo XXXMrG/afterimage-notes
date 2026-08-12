@@ -1,32 +1,12 @@
 ---
-import {
-  archiveItems,
-  archiveStats,
-  mediaLabels,
-  styleSystems,
-} from '../content/archive';
+import { archiveItems, archiveStats } from '../content/archive';
 import '../styles/global.css';
+import '../styles/home.css';
 
-const PAGE_SIZE = 12;
-const firstItem = archiveItems[0];
-const firstVariant = firstItem.variants[0];
-const firstStyle = styleSystems.find((style) => style.id === firstVariant.styleId)!;
-const decades = [...new Set(archiveItems.map((item) => `${Math.floor(Number(item.year) / 10) * 10}`))]
-  .sort((a, b) => Number(b) - Number(a));
-const archiveIndex = archiveItems.map((item) => ({
+const randomFallback = archiveItems[0];
+const randomIndex = archiveItems.map((item) => ({
   id: item.id,
-  archiveNo: item.archiveNo,
-  type: item.type,
-  typeLabel: mediaLabels[item.type],
-  title: item.title,
-  originalTitle: item.originalTitle ?? '',
-  creator: item.creator,
-  year: item.year,
-  context: item.context,
-  styles: item.variants.map((variant) => variant.styleId),
-  variantCount: item.variants.length,
   defaultVariantId: item.variants[0].id,
-  accent: item.variants[0].accent,
 }));
 ---
 
@@ -43,199 +23,56 @@ const archiveIndex = archiveItems.map((item) => ({
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <title>余像札记｜AI 文化海报档案</title>
   </head>
-  <body>
+  <body class="home-page">
     <div class="page-wash" data-page-wash aria-hidden="true"></div>
-    <main class="archive-shell">
-      <header class="masthead" aria-labelledby="site-title">
-        <h1 id="site-title" class="masthead__title" data-masthead-reveal>余像札记<br />Afterimage Notes</h1>
-        <p class="masthead__intro" data-masthead-reveal>
-          同一个作品，<br />
-          可以留下不止一种余像。<br />
-          <span>AI 对歌曲、电影与书籍的视觉理解。</span>
-        </p>
-        <p class="masthead__meta" data-masthead-reveal>
+    <main class="home-shell">
+      <header class="home-cover" aria-labelledby="site-title">
+        <h1 id="site-title" class="home-cover__title" data-home-reveal>
+          <span>余像札记</span>
+          <span>Afterimage Notes</span>
+        </h1>
+
+        <p class="home-cover__issue" data-home-reveal>
           CULTURAL POSTER ARCHIVE<br />
           {String(archiveStats.items).padStart(2, '0')} WORKS / {String(archiveStats.posters).padStart(2, '0')} POSTERS / {String(archiveStats.styles).padStart(2, '0')} SYSTEMS
         </p>
-        <a class="masthead__enter" href="#archive" data-masthead-reveal>进入档案 <span aria-hidden="true">↓</span></a>
-      </header>
 
-      <section id="archive" class="archive" aria-labelledby="archive-heading" data-archive-section>
-        <header class="archive__header">
-          <div>
-            <p class="section-kicker">Catalogued archive</p>
-            <h2 id="archive-heading">作品图录</h2>
-          </div>
-          <div class="archive__measure" aria-live="polite">
-            <span data-result-count>{archiveStats.items}</span>
-            <small>件符合条件</small>
-          </div>
-        </header>
-
-        <form class="catalog-console" data-catalog-form role="search" aria-label="检索与筛选作品图录">
-          <label class="catalog-search">
-            <span>检索</span>
-            <input
-              type="search"
-              name="q"
-              data-search
-              placeholder="题名 / 创作者"
-              autocomplete="off"
-              enterkeyhint="search"
-            />
-            <button type="button" data-clear-search aria-label="清除检索" hidden>清除</button>
-          </label>
-
-          <div class="catalog-filters">
-            <div class="filter-line" role="group" aria-label="按内容类型筛选">
-              <span class="filter-line__label">媒介</span>
-              <button type="button" data-filter-type="all" aria-pressed="true">全部</button>
-              {Object.entries(mediaLabels).map(([id, label]) => (
-                <button type="button" data-filter-type={id} aria-pressed="false">{label}</button>
-              ))}
-            </div>
-            <div class="filter-line" role="group" aria-label="按视觉风格筛选">
-              <span class="filter-line__label">视觉</span>
-              <button type="button" data-filter-style="all" aria-pressed="true">全部</button>
-              {styleSystems.map((style) => (
-                <button type="button" data-filter-style={style.id} aria-pressed="false">{style.label}</button>
-              ))}
-            </div>
-            <div class="filter-line" role="group" aria-label="按年代筛选">
-              <span class="filter-line__label">年代</span>
-              <button type="button" data-filter-decade="all" aria-pressed="true">全部</button>
-              {decades.map((decade) => (
-                <button type="button" data-filter-decade={decade} aria-pressed="false">{decade}s</button>
-              ))}
-            </div>
-            <label class="catalog-sort">
-              <span>编排</span>
-              <select name="sort" data-sort aria-label="作品排序">
-                <option value="archive">馆藏顺序</option>
-                <option value="newest">年代从新到旧</option>
-                <option value="oldest">年代从旧到新</option>
-                <option value="title">题名顺序</option>
-              </select>
-            </label>
-          </div>
-        </form>
-
-        <div class="catalog-layout">
-          <section class="catalog-volume" aria-labelledby="volume-title">
-            <header class="catalog-volume__header">
-              <div>
-                <p class="section-kicker">Current volume</p>
-                <h3 id="volume-title">第 <span data-current-page>01</span> 册</h3>
-              </div>
-              <p data-volume-range>001—007</p>
-            </header>
-
-            <nav class="work-index" aria-label="当前图录分册">
-              <ol data-work-index>
-                {archiveIndex.slice(0, PAGE_SIZE).map((item, itemIndex) => (
-                  <li>
-                    <button
-                      type="button"
-                      class="index-entry"
-                      data-select-work={item.id}
-                      aria-current={itemIndex === 0 ? 'true' : undefined}
-                      style={`--entry-accent:${item.accent}`}
-                    >
-                      <span class="index-entry__no">{item.archiveNo}</span>
-                      <span class="index-entry__title">{item.title}</span>
-                      <span class="index-entry__creator">{item.creator}</span>
-                      <span class="index-entry__meta">{item.typeLabel} · {item.year}</span>
-                      <span class="index-entry__versions">{String(item.variantCount).padStart(2, '0')}</span>
-                    </button>
-                  </li>
-                ))}
-              </ol>
-              <div class="empty-note" data-empty hidden>
-                <p>这一组条件下没有作品。</p>
-                <button type="button" data-reset-filters>清除条件，回到全部馆藏</button>
-              </div>
-            </nav>
-
-            <nav class="catalog-pagination" aria-label="图录分页">
-              <button type="button" data-page-previous aria-label="上一册"><span aria-hidden="true">←</span><span>上一册</span></button>
-              <div data-page-window aria-label="选择图录分册"></div>
-              <button type="button" data-page-next aria-label="下一册"><span>下一册</span><span aria-hidden="true">→</span></button>
-            </nav>
-          </section>
-
-          <article
-            class="viewer"
-            data-viewer
-            aria-live="polite"
-            aria-busy="true"
-            style={`--accent:${firstVariant.accent}`}
-          >
-            <div class="viewer__frame" data-viewer-frame data-media-state="loading">
-              <img
-                data-viewer-image
-                src={firstVariant.image}
-                alt={firstVariant.alt}
-                width={firstVariant.width}
-                height={firstVariant.height}
-                decoding="async"
-                fetchpriority="high"
-              />
-              <img data-viewer-image-next alt="" aria-hidden="true" decoding="async" />
-              <div class="media-status" data-media-status aria-live="polite">
-                <span class="media-status__mark" aria-hidden="true"></span>
-                <span data-media-status-text>正在显影</span>
-                <button type="button" data-retry-image hidden>重新显影</button>
-              </div>
-              <span class="viewer__folio" data-viewer-folio>{firstItem.archiveNo}</span>
-            </div>
-
-            <div class="viewer__notes" data-viewer-notes>
-              <p class="viewer__eyebrow">
-                <span data-viewer-type>{mediaLabels[firstItem.type]}</span>
-                <span><span data-viewer-year>{firstItem.year}</span> / <span data-viewer-context>{firstItem.context}</span></span>
-              </p>
-              <h3 data-viewer-title>{firstItem.title}</h3>
-              <p class="viewer__original" data-viewer-original hidden></p>
-              <p class="viewer__creator" data-viewer-creator>{firstItem.creator}</p>
-
-              <div class="variant-nav" data-variant-nav aria-label="海报风格版本"></div>
-
-              <div class="viewer__reading">
-                <span>AI interpretation</span>
-                <p data-viewer-interpretation>{firstVariant.interpretation}</p>
-              </div>
-
-              <p class="viewer__style-note" data-viewer-style-note>{firstStyle.shortDescription}</p>
-
-              <a
-                class="viewer__open"
-                data-viewer-open
-                href={`/works/${firstItem.id}/?poster=${firstVariant.id}`}
-              >
-                <span>进入完整作品</span><span aria-hidden="true">↗</span>
-              </a>
-            </div>
-          </article>
+        <div class="home-cover__statement" data-home-reveal>
+          <p>同一个作品，<br />可以留下不止一种余像。</p>
+          <span>AI 对歌曲、电影与书籍的视觉理解。</span>
         </div>
-      </section>
 
-      <footer class="site-footer">
-        <p>不是复述作品，也不是还原情节。每张海报保存的是模型在一次阅读之后，选择留下的那个视觉关系。</p>
-        <p>Archive grows by work × interpretation × visual system.</p>
-      </footer>
+        <nav class="home-cover__choices" aria-label="选择浏览方式" data-home-reveal>
+          <a
+            href={`/works/${randomFallback.id}/?poster=${randomFallback.variants[0].id}`}
+            data-random-work
+          >
+            <span class="home-choice__no">01</span>
+            <span class="home-choice__label">随机来个作品</span>
+            <span class="home-choice__note">让档案替你选择</span>
+            <span class="home-choice__arrow" aria-hidden="true">↗</span>
+          </a>
+          <a href="/archive/">
+            <span class="home-choice__no">02</span>
+            <span class="home-choice__label">进入全部列表</span>
+            <span class="home-choice__note">检索、筛选与浏览全部馆藏</span>
+            <span class="home-choice__arrow" aria-hidden="true">→</span>
+          </a>
+        </nav>
+
+        <p class="home-cover__footnote" data-home-reveal>
+          NOT A SUMMARY. NOT A RECONSTRUCTION.<br />
+          A VISUAL RELATION LEFT AFTER READING.
+        </p>
+      </header>
     </main>
 
     <script
       is:inline
-      id="archive-index-data"
+      id="random-work-data"
       type="application/json"
-      set:html={JSON.stringify({
-        items: archiveIndex,
-        styles: styleSystems,
-        pageSize: PAGE_SIZE,
-        initialItem: firstItem,
-      })}
+      set:html={JSON.stringify(randomIndex)}
     ></script>
-    <script src="../scripts/archive-catalog.ts"></script>
+    <script src="../scripts/home.ts"></script>
   </body>
 </html>

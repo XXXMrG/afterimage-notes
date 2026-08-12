@@ -129,8 +129,8 @@ function setParam(url: URL, key: string, value: string, fallback?: string) {
   else url.searchParams.set(key, value);
 }
 
-function homeStateUrl() {
-  const url = new URL('/', window.location.origin);
+function archiveStateUrl() {
+  const url = new URL('/archive/', window.location.origin);
   setParam(url, 'q', state.query);
   setParam(url, 'type', state.type, 'all');
   setParam(url, 'style', state.style, 'all');
@@ -139,22 +139,21 @@ function homeStateUrl() {
   if (state.page > 1) url.searchParams.set('page', String(state.page));
   if (state.itemId) url.searchParams.set('work', state.itemId);
   if (state.variantId) url.searchParams.set('poster', state.variantId);
-  url.hash = 'archive';
   return url;
 }
 
 function syncUrl() {
-  const url = homeStateUrl();
-  history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
+  const url = archiveStateUrl();
+  history.replaceState(null, '', `${url.pathname}${url.search}`);
 }
 
 function detailHref(itemId: string, variantId: string) {
-  const back = homeStateUrl();
+  const back = archiveStateUrl();
   back.searchParams.set('work', itemId);
   back.searchParams.set('poster', variantId);
   const url = new URL(`/works/${itemId}/`, window.location.origin);
   url.searchParams.set('poster', variantId);
-  url.searchParams.set('return', `${back.pathname}${back.search}${back.hash}`);
+  url.searchParams.set('return', `${back.pathname}${back.search}`);
   return `${url.pathname}${url.search}`;
 }
 
@@ -509,7 +508,7 @@ function setupRouteTransitions() {
   });
   document.addEventListener('click', (event) => {
     const anchor = (event.target as Element).closest<HTMLAnchorElement>('a[href]');
-    if (!anchor || anchor.origin !== window.location.origin || anchor.hash === '#archive') return;
+    if (!anchor || anchor.origin !== window.location.origin) return;
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || anchor.target === '_blank') return;
     if (!wash || wash.dataset.active === 'true') return;
     event.preventDefault();
