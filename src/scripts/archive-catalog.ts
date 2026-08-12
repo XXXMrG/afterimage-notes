@@ -95,6 +95,8 @@ const mediaStatus = document.querySelector<HTMLElement>('[data-media-status]')!;
 const mediaStatusText = document.querySelector<HTMLElement>('[data-media-status-text]')!;
 const retryImage = document.querySelector<HTMLButtonElement>('[data-retry-image]')!;
 const variantNav = document.querySelector<HTMLElement>('[data-variant-nav]')!;
+const catalogTools = document.querySelector<HTMLDetailsElement>('[data-catalog-tools]');
+const toolsState = document.querySelector<HTMLElement>('[data-tools-state]');
 let requestId = 0;
 let searchTimer = 0;
 let failedVariant: Variant | null = null;
@@ -169,7 +171,6 @@ function makeIndexEntry(item: IndexItem) {
   const parts = [
     ['index-entry__no', item.archiveNo],
     ['index-entry__title', item.title],
-    ['index-entry__creator', item.creator],
     ['index-entry__meta', `${item.typeLabel} · ${item.year}`],
     ['index-entry__versions', String(item.variantCount).padStart(2, '0')],
   ];
@@ -180,6 +181,8 @@ function makeIndexEntry(item: IndexItem) {
     button.append(span);
   });
   button.addEventListener('click', () => selectWork(item.id));
+  button.addEventListener('pointerenter', () => selectWork(item.id, false));
+  button.addEventListener('focus', () => selectWork(item.id, false));
   li.append(button);
   return li;
 }
@@ -224,9 +227,12 @@ function renderControlState() {
   decadeButtons.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.filterDecade === state.decade)));
   clearSearch.hidden = !state.query;
   sortSelect.value = state.sort;
+  const activeCount = [state.query, state.type !== 'all', state.style !== 'all', state.decade !== 'all', state.sort !== 'archive']
+    .filter(Boolean).length;
+  if (toolsState) toolsState.textContent = activeCount ? `${activeCount} 项条件` : '全部馆藏';
 }
 
-function renderCatalog({ animate = true, select = true } = {}) {
+function renderCatalog({ select = true } = {}) {
   const filtered = filteredItems();
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   state.page = Math.min(Math.max(1, state.page), totalPages);
@@ -245,7 +251,9 @@ function renderCatalog({ animate = true, select = true } = {}) {
 
   indexList.replaceChildren(...pageItems.map(makeIndexEntry));
   emptyNote.hidden = filtered.length > 0;
-  viewer.hidden = filtered.length === 0;
+  viewer.hidden = false;
+  viewerFrame.hidden = filtered.length === 0;
+  viewerNotes.hidden = filtered.length === 0;
   resultCount.textContent = String(filtered.length).padStart(3, '0');
   currentPage.textContent = String(state.page).padStart(2, '0');
   volumeRange.textContent = filtered.length
@@ -255,16 +263,6 @@ function renderCatalog({ animate = true, select = true } = {}) {
   renderControlState();
   syncUrl();
 
-  if (animate && !reduceMotion && pageItems.length) {
-    gsap.from(indexList.children, {
-      autoAlpha: 0,
-      y: 14,
-      duration: 0.42,
-      stagger: 0.035,
-      ease: 'power3.out',
-      clearProps: 'opacity,visibility,transform',
-    });
-  }
   if (select && state.itemId) void loadViewer(state.itemId, state.variantId);
 }
 
@@ -272,7 +270,7 @@ function setPage(page: number) {
   if (page === state.page) return;
   state.page = page;
   renderCatalog();
-  document.querySelector('.catalog-volume')?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+  document.querySelector('.catalog-volume')?.scrollIntoView({ behavior: 'auto', block: 'start' });
 }
 
 async function fetchItem(itemId: string) {
@@ -303,6 +301,7 @@ async function decodeImage(target: HTMLImageElement, variant: Variant) {
 async function transitionImage(variant: Variant, token: number) {
   failedVariant = null;
   setMediaStatus('loading');
+  gsap.killTweensOf(nextImage);
   nextImage.style.opacity = '0';
   try {
     await decodeImage(nextImage, variant);
@@ -315,7 +314,13 @@ async function transitionImage(variant: Variant, token: number) {
       nextImage.style.opacity = '0';
     } else {
       await new Promise<void>((resolve) => {
-        gsap.to(nextImage, { opacity: 1, duration: 0.48, ease: 'power2.inOut', onComplete: resolve });
+        gsap.to(nextImage, {
+          opacity: 1,
+          duration: 0.48,
+          ease: 'power2.inOut',
+          onComplete: resolve,
+          onInterrupt: resolve,
+        });
       });
       if (token !== requestId) return;
       image.src = variant.image;
@@ -327,6 +332,7 @@ async function transitionImage(variant: Variant, token: number) {
     setMediaStatus('idle');
   } catch {
     if (token !== requestId) return;
+    gsap.killTweensOf(nextImage);
     failedVariant = variant;
     nextImage.removeAttribute('src');
     setMediaStatus('error');
@@ -348,14 +354,14 @@ function renderVariantNav(item: FullItem, variant: Variant) {
     button.addEventListener('click', () => {
       if (candidate.id === state.variantId) return;
       state.variantId = candidate.id;
-      void renderViewer(item, candidate, true);
+      void renderViewer(item, candidate);
     });
     variantNav.append(button);
   });
   variantNav.hidden = available.length <= 1;
 }
 
-async function renderViewer(item: FullItem, variant: Variant, animate = false) {
+async function renderViewer(item: FullItem, variant: Variant) {
   const style = styles.find((entry) => entry.id === variant.styleId)!;
   const token = ++requestId;
   state.itemId = item.id;
@@ -364,12 +370,6 @@ async function renderViewer(item: FullItem, variant: Variant, animate = false) {
   viewer.setAttribute('aria-busy', 'true');
   renderVariantNav(item, variant);
 
-  const noteTargets = [
-    viewerNotes.querySelector('[data-viewer-title]'),
-    viewerNotes.querySelector('[data-viewer-creator]'),
-    viewerNotes.querySelector('.viewer__reading'),
-  ].filter(Boolean);
-  if (animate && !reduceMotion) gsap.to(noteTargets, { autoAlpha: 0, y: 8, duration: 0.16, overwrite: true });
 
   viewer.querySelector<HTMLElement>('[data-viewer-folio]')!.textContent = item.archiveNo;
   viewer.querySelector<HTMLElement>('[data-viewer-type]')!.textContent = item.typeLabel;
@@ -390,17 +390,6 @@ async function renderViewer(item: FullItem, variant: Variant, animate = false) {
   });
   syncUrl();
 
-  if (animate && !reduceMotion) {
-    gsap.fromTo(noteTargets, { autoAlpha: 0, y: 8 }, {
-      autoAlpha: 1,
-      y: 0,
-      duration: 0.44,
-      stagger: 0.045,
-      ease: 'power3.out',
-      overwrite: true,
-      clearProps: 'opacity,visibility,transform',
-    });
-  }
   await transitionImage(variant, token);
   if (token === requestId) viewer.setAttribute('aria-busy', 'false');
 }
@@ -421,7 +410,7 @@ async function loadViewer(itemId: string, requestedVariantId?: string) {
       ?? available[0]
       ?? item.variants[0];
     viewer.classList.remove('is-data-loading');
-    await renderViewer(item, variant, true);
+    await renderViewer(item, variant);
   } catch {
     if (token !== requestId) return;
     viewer.classList.remove('is-data-loading');
@@ -430,14 +419,20 @@ async function loadViewer(itemId: string, requestedVariantId?: string) {
   }
 }
 
-function selectWork(itemId: string) {
+function selectWork(itemId: string, scrollOnMobile = true) {
   const item = items.find((candidate) => candidate.id === itemId);
-  if (!item || item.id === state.itemId) return;
+  if (!item) return;
+  if (item.id === state.itemId) {
+    if (scrollOnMobile && window.matchMedia('(max-width: 820px)').matches) {
+      viewerFrame.scrollIntoView({ behavior: 'auto', block: 'start' });
+    }
+    return;
+  }
   state.itemId = item.id;
   state.variantId = state.style === 'all' ? item.defaultVariantId : '';
   void loadViewer(item.id, state.variantId);
-  if (window.matchMedia('(max-width: 820px)').matches) {
-    viewer.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+  if (scrollOnMobile && window.matchMedia('(max-width: 820px)').matches) {
+    viewerFrame.scrollIntoView({ behavior: 'auto', block: 'start' });
   }
 }
 
@@ -498,55 +493,12 @@ retryImage.addEventListener('click', async () => {
   }
 });
 
-function setupRouteTransitions() {
-  if (reduceMotion) return;
-  const wash = document.querySelector<HTMLElement>('[data-page-wash]');
-  window.addEventListener('pageshow', () => {
-    if (!wash) return;
-    wash.dataset.active = 'false';
-    gsap.set(wash, { scaleY: 0 });
-  });
-  document.addEventListener('click', (event) => {
-    const anchor = (event.target as Element).closest<HTMLAnchorElement>('a[href]');
-    if (!anchor || anchor.origin !== window.location.origin) return;
-    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || anchor.target === '_blank') return;
-    if (!wash || wash.dataset.active === 'true') return;
-    event.preventDefault();
-    wash.dataset.active = 'true';
-    gsap.fromTo(wash, { scaleY: 0, transformOrigin: 'bottom' }, {
-      scaleY: 1,
-      duration: 0.38,
-      ease: 'power3.inOut',
-      onComplete: () => { window.location.href = anchor.href; },
-    });
-  });
-}
-
-function entrance() {
-  if (reduceMotion) return;
-  gsap.from('[data-masthead-reveal]', {
-    autoAlpha: 0,
-    y: 18,
-    duration: 0.78,
-    stagger: 0.09,
-    ease: 'power3.out',
-    clearProps: 'opacity,visibility,transform',
-  });
-  gsap.from('[data-archive-section]', {
-    autoAlpha: 0,
-    y: 22,
-    duration: 0.7,
-    delay: 0.18,
-    ease: 'power3.out',
-    clearProps: 'opacity,visibility,transform',
-  });
-}
-
 const initialFiltered = filteredItems();
 if (requestedItem && !pageUrl.searchParams.has('page')) {
   const requestedIndex = initialFiltered.findIndex((item) => item.id === requestedItem.id);
   if (requestedIndex >= 0) state.page = Math.floor(requestedIndex / pageSize) + 1;
 }
-renderCatalog({ animate: false });
-entrance();
-setupRouteTransitions();
+renderCatalog();
+if (catalogTools && [state.query, state.type !== 'all', state.style !== 'all', state.decade !== 'all', state.sort !== 'archive'].some(Boolean)) {
+  catalogTools.open = true;
+}

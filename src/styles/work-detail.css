@@ -116,7 +116,6 @@
 }
 .detail-stage[data-media-state="loading"] .detail-poster__sheet::before {
   opacity: 1;
-  animation: paper-scan 1.45s ease-in-out infinite;
 }
 .detail-poster__sheet img {
   display: block;
@@ -159,7 +158,6 @@
   height: 6px;
   border: 1px solid currentColor;
   border-radius: 50%;
-  animation: media-pulse 1s ease-in-out infinite;
 }
 .detail-media-status b { font-weight: 400; }
 .detail-media-status button {
@@ -174,7 +172,6 @@
 .detail-stage[data-media-state="error"] .detail-media-status > span {
   background: #a3382c;
   border-color: #a3382c;
-  animation: none;
 }
 .detail-poster__sheet i {
   position: absolute;

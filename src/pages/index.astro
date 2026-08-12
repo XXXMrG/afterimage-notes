@@ -24,43 +24,42 @@ const randomIndex = archiveItems.map((item) => ({
     <title>余像札记｜AI 文化海报档案</title>
   </head>
   <body class="home-page">
-    <div class="page-wash" data-page-wash aria-hidden="true"></div>
     <main class="home-shell">
       <header class="home-cover" aria-labelledby="site-title">
-        <h1 id="site-title" class="home-cover__title" data-home-reveal>
+        <h1 id="site-title" class="home-cover__title">
           <span>余像札记</span>
           <span>Afterimage Notes</span>
         </h1>
 
-        <p class="home-cover__issue" data-home-reveal>
+        <p class="home-cover__issue">
           CULTURAL POSTER ARCHIVE<br />
           {String(archiveStats.items).padStart(2, '0')} WORKS / {String(archiveStats.posters).padStart(2, '0')} POSTERS / {String(archiveStats.styles).padStart(2, '0')} SYSTEMS
         </p>
 
-        <div class="home-cover__statement" data-home-reveal>
+        <div class="home-cover__statement">
           <p>同一个作品，<br />可以留下不止一种余像。</p>
           <span>AI 对歌曲、电影与书籍的视觉理解。</span>
         </div>
 
-        <nav class="home-cover__choices" aria-label="选择浏览方式" data-home-reveal>
+        <nav class="home-cover__choices" aria-label="选择浏览方式">
           <a
             href={`/works/${randomFallback.id}/?poster=${randomFallback.variants[0].id}`}
             data-random-work
           >
-            <span class="home-choice__no">01</span>
-            <span class="home-choice__label">随机来个作品</span>
-            <span class="home-choice__note">让档案替你选择</span>
+            <span class="home-choice__kicker">漫游 · 01</span>
+            <span class="home-choice__label">与一件作品相遇</span>
+            <span class="home-choice__note">由馆藏决定起点</span>
             <span class="home-choice__arrow" aria-hidden="true">↗</span>
           </a>
           <a href="/archive/">
-            <span class="home-choice__no">02</span>
-            <span class="home-choice__label">进入全部列表</span>
-            <span class="home-choice__note">检索、筛选与浏览全部馆藏</span>
+            <span class="home-choice__kicker">查阅 · 02</span>
+            <span class="home-choice__label">展开作品图录</span>
+            <span class="home-choice__note">浏览全部作品与视觉版本</span>
             <span class="home-choice__arrow" aria-hidden="true">→</span>
           </a>
         </nav>
 
-        <p class="home-cover__footnote" data-home-reveal>
+        <p class="home-cover__footnote">
           NOT A SUMMARY. NOT A RECONSTRUCTION.<br />
           A VISUAL RELATION LEFT AFTER READING.
         </p>

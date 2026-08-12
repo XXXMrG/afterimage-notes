@@ -44,9 +44,8 @@ const archiveIndex = archiveItems.map((item) => ({
     <title>作品图录｜余像札记</title>
   </head>
   <body class="catalog-page">
-    <div class="page-wash" data-page-wash aria-hidden="true"></div>
     <main class="archive-shell archive-shell--catalog">
-      <header class="archive-bar" data-masthead-reveal>
+      <header class="archive-bar">
         <a class="archive-bar__mark" href="/" aria-label="返回余像札记首页">
           <span>余像札记</span>
           <span>Afterimage Notes</span>
@@ -58,106 +57,76 @@ const archiveIndex = archiveItems.map((item) => ({
       <section id="catalog" class="archive archive--standalone" aria-labelledby="archive-heading" data-archive-section>
         <header class="archive__header">
           <div>
-            <p class="section-kicker">Catalogued archive</p>
+            <p class="section-kicker">Open collection</p>
             <h1 id="archive-heading">作品图录</h1>
           </div>
+          <p class="archive__intro">沿着档案签浏览，<br />让作品先于条件出现。</p>
           <div class="archive__measure" aria-live="polite">
-            <span data-result-count>{archiveStats.items}</span>
-            <small>件符合条件</small>
+            <span data-result-count>{String(archiveStats.items).padStart(3, '0')}</span>
+            <small>件馆藏</small>
           </div>
         </header>
 
-        <form class="catalog-console" data-catalog-form role="search" aria-label="检索与筛选作品图录">
-          <label class="catalog-search">
-            <span>检索</span>
-            <input
-              type="search"
-              name="q"
-              data-search
-              placeholder="题名 / 创作者"
-              autocomplete="off"
-              enterkeyhint="search"
-            />
-            <button type="button" data-clear-search aria-label="清除检索" hidden>清除</button>
-          </label>
+        <details class="catalog-tools" data-catalog-tools>
+          <summary>
+            <span>
+              <small>SEARCH &amp; ARRANGE</small>
+              <b>查找与编排</b>
+            </span>
+            <span class="catalog-tools__state" data-tools-state>全部馆藏</span>
+            <i aria-hidden="true"></i>
+          </summary>
 
-          <div class="catalog-filters">
-            <div class="filter-line" role="group" aria-label="按内容类型筛选">
-              <span class="filter-line__label">媒介</span>
-              <button type="button" data-filter-type="all" aria-pressed="true">全部</button>
-              {Object.entries(mediaLabels).map(([id, label]) => (
-                <button type="button" data-filter-type={id} aria-pressed="false">{label}</button>
-              ))}
-            </div>
-            <div class="filter-line" role="group" aria-label="按视觉风格筛选">
-              <span class="filter-line__label">视觉</span>
-              <button type="button" data-filter-style="all" aria-pressed="true">全部</button>
-              {styleSystems.map((style) => (
-                <button type="button" data-filter-style={style.id} aria-pressed="false">{style.label}</button>
-              ))}
-            </div>
-            <div class="filter-line" role="group" aria-label="按年代筛选">
-              <span class="filter-line__label">年代</span>
-              <button type="button" data-filter-decade="all" aria-pressed="true">全部</button>
-              {decades.map((decade) => (
-                <button type="button" data-filter-decade={decade} aria-pressed="false">{decade}s</button>
-              ))}
-            </div>
-            <label class="catalog-sort">
-              <span>编排</span>
-              <select name="sort" data-sort aria-label="作品排序">
-                <option value="archive">馆藏顺序</option>
-                <option value="newest">年代从新到旧</option>
-                <option value="oldest">年代从旧到新</option>
-                <option value="title">题名顺序</option>
-              </select>
+          <form class="catalog-console" data-catalog-form role="search" aria-label="检索与筛选作品图录">
+            <label class="catalog-search">
+              <span>检索</span>
+              <input
+                type="search"
+                name="q"
+                data-search
+                placeholder="题名 / 创作者"
+                autocomplete="off"
+                enterkeyhint="search"
+              />
+              <button type="button" data-clear-search aria-label="清除检索" hidden>清除</button>
             </label>
-          </div>
-        </form>
+
+            <div class="catalog-filters">
+              <div class="filter-line" role="group" aria-label="按内容类型筛选">
+                <span class="filter-line__label">媒介</span>
+                <button type="button" data-filter-type="all" aria-pressed="true">全部</button>
+                {Object.entries(mediaLabels).map(([id, label]) => (
+                  <button type="button" data-filter-type={id} aria-pressed="false">{label}</button>
+                ))}
+              </div>
+              <div class="filter-line" role="group" aria-label="按视觉风格筛选">
+                <span class="filter-line__label">视觉</span>
+                <button type="button" data-filter-style="all" aria-pressed="true">全部</button>
+                {styleSystems.map((style) => (
+                  <button type="button" data-filter-style={style.id} aria-pressed="false">{style.label}</button>
+                ))}
+              </div>
+              <div class="filter-line" role="group" aria-label="按年代筛选">
+                <span class="filter-line__label">年代</span>
+                <button type="button" data-filter-decade="all" aria-pressed="true">全部</button>
+                {decades.map((decade) => (
+                  <button type="button" data-filter-decade={decade} aria-pressed="false">{decade}s</button>
+                ))}
+              </div>
+              <label class="catalog-sort">
+                <span>编排</span>
+                <select name="sort" data-sort aria-label="作品排序">
+                  <option value="archive">馆藏顺序</option>
+                  <option value="newest">年代从新到旧</option>
+                  <option value="oldest">年代从旧到新</option>
+                  <option value="title">题名顺序</option>
+                </select>
+              </label>
+            </div>
+          </form>
+        </details>
 
         <div class="catalog-layout">
-          <section class="catalog-volume" aria-labelledby="volume-title">
-            <header class="catalog-volume__header">
-              <div>
-                <p class="section-kicker">Current volume</p>
-                <h2 id="volume-title">第 <span data-current-page>01</span> 册</h2>
-              </div>
-              <p data-volume-range>001—007</p>
-            </header>
-
-            <nav class="work-index" aria-label="当前图录分册">
-              <ol data-work-index>
-                {archiveIndex.slice(0, PAGE_SIZE).map((item, itemIndex) => (
-                  <li>
-                    <button
-                      type="button"
-                      class="index-entry"
-                      data-select-work={item.id}
-                      aria-current={itemIndex === 0 ? 'true' : undefined}
-                      style={`--entry-accent:${item.accent}`}
-                    >
-                      <span class="index-entry__no">{item.archiveNo}</span>
-                      <span class="index-entry__title">{item.title}</span>
-                      <span class="index-entry__creator">{item.creator}</span>
-                      <span class="index-entry__meta">{item.typeLabel} · {item.year}</span>
-                      <span class="index-entry__versions">{String(item.variantCount).padStart(2, '0')}</span>
-                    </button>
-                  </li>
-                ))}
-              </ol>
-              <div class="empty-note" data-empty hidden>
-                <p>这一组条件下没有作品。</p>
-                <button type="button" data-reset-filters>清除条件，回到全部馆藏</button>
-              </div>
-            </nav>
-
-            <nav class="catalog-pagination" aria-label="图录分页">
-              <button type="button" data-page-previous aria-label="上一册"><span aria-hidden="true">←</span><span>上一册</span></button>
-              <div data-page-window aria-label="选择图录分册"></div>
-              <button type="button" data-page-next aria-label="下一册"><span>下一册</span><span aria-hidden="true">→</span></button>
-            </nav>
-          </section>
-
           <article
             class="viewer"
             data-viewer
@@ -184,6 +153,49 @@ const archiveIndex = archiveItems.map((item) => ({
               <span class="viewer__folio" data-viewer-folio>{firstItem.archiveNo}</span>
             </div>
 
+            <section class="catalog-volume" aria-labelledby="volume-title">
+              <header class="catalog-volume__header">
+                <div>
+                  <p class="section-kicker">Browse this volume</p>
+                  <h2 id="volume-title">浏览本册</h2>
+                </div>
+                <p><span data-volume-range>001—007</span><br />第 <span data-current-page>01</span> 册</p>
+              </header>
+
+              <nav class="work-index" aria-label="当前图录分册">
+                <ol data-work-index>
+                  {archiveIndex.slice(0, PAGE_SIZE).map((item, itemIndex) => (
+                    <li>
+                      <button
+                        type="button"
+                        class="index-entry"
+                        data-select-work={item.id}
+                        aria-current={itemIndex === 0 ? 'true' : undefined}
+                        style={`--entry-accent:${item.accent}`}
+                      >
+                        <span class="index-entry__no">{item.archiveNo}</span>
+                        <span class="index-entry__title">{item.title}</span>
+                        <span class="index-entry__meta">{item.typeLabel} · {item.year}</span>
+                        <span class="index-entry__versions">{String(item.variantCount).padStart(2, '0')}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ol>
+                <div class="empty-note" data-empty hidden>
+                  <p>这一组条件下没有作品。</p>
+                  <button type="button" data-reset-filters>清除条件，回到全部馆藏</button>
+                </div>
+              </nav>
+
+              <p class="catalog-volume__hint">掠过或聚焦档案签，即时预览</p>
+
+              <nav class="catalog-pagination" aria-label="图录分页">
+                <button type="button" data-page-previous aria-label="上一册"><span aria-hidden="true">←</span><span>上一册</span></button>
+                <div data-page-window aria-label="选择图录分册"></div>
+                <button type="button" data-page-next aria-label="下一册"><span>下一册</span><span aria-hidden="true">→</span></button>
+              </nav>
+            </section>
+
             <div class="viewer__notes" data-viewer-notes>
               <p class="viewer__eyebrow">
                 <span data-viewer-type>{mediaLabels[firstItem.type]}</span>
@@ -207,7 +219,7 @@ const archiveIndex = archiveItems.map((item) => ({
                 data-viewer-open
                 href={`/works/${firstItem.id}/?poster=${firstVariant.id}`}
               >
-                <span>进入完整作品</span><span aria-hidden="true">↗</span>
+                <span>展开这件作品</span><span aria-hidden="true">↗</span>
               </a>
             </div>
           </article>
