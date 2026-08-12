@@ -33,6 +33,7 @@ body.detail-page main {
   align-items: center;
   gap: 13px;
   text-decoration: none;
+  font-family: var(--mono);
 }
 
 .detail-mark span:first-child {

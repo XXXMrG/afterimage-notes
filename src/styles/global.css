@@ -13,8 +13,8 @@
   --muted: #5b5852;
   --hairline: rgba(32, 33, 30, 0.24);
   --serif: "Archive Serif", "Noto Serif SC", "Source Han Serif SC", "Songti SC", "STSong", Georgia, serif;
-  --ui: "Archive Serif", "Noto Serif SC", "Source Han Serif SC", "Songti SC", serif;
-  --mono: "IBM Plex Mono", "SFMono-Regular", Consolas, "Liberation Mono", "Archive Serif", monospace;
+  --ui: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+  --mono: "IBM Plex Mono", "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", monospace;
 }
 
 * { box-sizing: border-box; }
