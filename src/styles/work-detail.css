@@ -98,7 +98,25 @@
   width: min(100%, 620px);
   max-height: calc(100dvh - 190px);
   position: relative;
+  isolation: isolate;
+  overflow: visible;
   margin: 0 auto;
+  background: #d2cbbf;
+}
+.detail-poster__sheet::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: 0;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 25%, rgba(232,227,216,.38) 46%, transparent 67%);
+  background-size: 220% 100%;
+  transition: opacity .25s ease;
+}
+.detail-stage[data-media-state="loading"] .detail-poster__sheet::before {
+  opacity: 1;
+  animation: paper-scan 1.45s ease-in-out infinite;
 }
 .detail-poster__sheet img {
   display: block;
@@ -111,12 +129,60 @@
   filter: saturate(.98) contrast(.995);
   box-shadow: 0 20px 48px rgba(56, 48, 35, .08);
 }
+.detail-poster__sheet [data-detail-image-next] {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  height: 100%;
+  opacity: 0;
+  object-fit: contain;
+}
+.detail-media-status {
+  position: absolute;
+  z-index: 6;
+  right: 12px;
+  bottom: 12px;
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  color: var(--ink);
+  background: rgba(216,210,198,.9);
+  backdrop-filter: blur(8px);
+  font: 7px/1 var(--mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.detail-media-status > span {
+  width: 6px;
+  height: 6px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  animation: media-pulse 1s ease-in-out infinite;
+}
+.detail-media-status b { font-weight: 400; }
+.detail-media-status button {
+  min-height: 28px;
+  padding: 0 0 0 8px;
+  border: 0;
+  border-left: 1px solid var(--hairline);
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+}
+.detail-stage[data-media-state="error"] .detail-media-status > span {
+  background: #a3382c;
+  border-color: #a3382c;
+  animation: none;
+}
 .detail-poster__sheet i {
   position: absolute;
   right: -12px;
   top: 17%;
   width: 22px;
   height: 22px;
+  z-index: 5;
   border: 1px solid var(--accent);
   border-radius: 50%;
 }

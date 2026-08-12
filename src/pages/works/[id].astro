@@ -42,6 +42,7 @@ const nextItem = archiveItems[(itemIndex + 1) % archiveItems.length];
     <title>{item.title}｜余像札记</title>
   </head>
   <body>
+    <div class="page-wash" data-page-wash aria-hidden="true"></div>
     <header class="detail-bar">
       <a class="detail-mark" href="/" aria-label="返回余像札记首页">
         <span>余像札记</span>
@@ -63,6 +64,8 @@ const nextItem = archiveItems[(itemIndex + 1) % archiveItems.length];
         data-detail-stage
         style={`--accent:${firstVariant.accent}`}
         aria-labelledby="work-title"
+        aria-busy="true"
+        data-media-state="loading"
       >
         <p class="detail-folio">{item.archiveNo} / {String(archiveStats.items).padStart(2, '0')}</p>
 
@@ -75,7 +78,14 @@ const nextItem = archiveItems[(itemIndex + 1) % archiveItems.length];
               width={firstVariant.width}
               height={firstVariant.height}
               decoding="async"
+              fetchpriority="high"
             />
+            <img data-detail-image-next alt="" aria-hidden="true" decoding="async" />
+            <div class="detail-media-status" data-detail-media-status aria-live="polite">
+              <span aria-hidden="true"></span>
+              <b data-detail-media-status-text>正在显影</b>
+              <button type="button" data-detail-retry-image hidden>重新显影</button>
+            </div>
             <i aria-hidden="true"></i>
           </div>
           <figcaption>
@@ -130,7 +140,7 @@ const nextItem = archiveItems[(itemIndex + 1) % archiveItems.length];
         </section>
 
         <nav class="detail-step" aria-label="相邻作品">
-          <a href={`/works/${previousItem.id}/`}>
+          <a data-adjacent-work href={`/works/${previousItem.id}/`}>
             <span aria-hidden="true">←</span>
             <span>上一件</span>
             <b>{previousItem.title}</b>
@@ -143,7 +153,7 @@ const nextItem = archiveItems[(itemIndex + 1) % archiveItems.length];
             <span>返回作品目录</span>
             <b>{String(archiveStats.items).padStart(2, '0')} 件馆藏</b>
           </a>
-          <a href={`/works/${nextItem.id}/`}>
+          <a data-adjacent-work href={`/works/${nextItem.id}/`}>
             <span>下一件</span>
             <b>{nextItem.title}</b>
             <span aria-hidden="true">→</span>
@@ -158,52 +168,6 @@ const nextItem = archiveItems[(itemIndex + 1) % archiveItems.length];
       type="application/json"
       set:html={JSON.stringify({ item, styles: styleSystems })}
     ></script>
-    <script is:inline>
-      const payload = JSON.parse(document.getElementById('work-data').textContent);
-      const item = payload.item;
-      const styles = payload.styles;
-      const stage = document.querySelector('[data-detail-stage]');
-      const image = document.querySelector('[data-detail-image]');
-      const variantButtons = [...document.querySelectorAll('[data-variant-id]')];
-      const url = new URL(window.location.href);
-      const requested = item.variants.find((variant) => variant.id === url.searchParams.get('poster'));
-      let activeId = requested?.id ?? item.variants[0].id;
-
-      function renderVariant(animate = false) {
-        const variant = item.variants.find((candidate) => candidate.id === activeId) ?? item.variants[0];
-        const style = styles.find((candidate) => candidate.id === variant.styleId);
-        const variantIndex = item.variants.indexOf(variant);
-        activeId = variant.id;
-
-        if (animate) stage.classList.add('is-changing');
-        image.src = variant.image;
-        image.alt = variant.alt;
-        image.width = variant.width;
-        image.height = variant.height;
-        image.onload = () => stage.classList.remove('is-changing');
-        if (image.complete) requestAnimationFrame(() => stage.classList.remove('is-changing'));
-
-        stage.style.setProperty('--accent', variant.accent);
-        document.querySelector('[data-detail-style]').textContent = style.englishLabel;
-        document.querySelector('[data-detail-count]').textContent = `${String(variantIndex + 1).padStart(2, '0')} / ${String(item.variants.length).padStart(2, '0')}`;
-        document.querySelector('[data-detail-interpretation]').textContent = variant.interpretation;
-        document.querySelector('[data-detail-style-note]').textContent = style.shortDescription;
-        variantButtons.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.variantId === variant.id)));
-
-        const homeHref = `/?work=${item.id}&poster=${variant.id}#archive`;
-        document.querySelector('[data-detail-back]').href = homeHref;
-        document.querySelector('[data-detail-index]').href = homeHref;
-        const nextUrl = new URL(window.location.href);
-        nextUrl.searchParams.set('poster', variant.id);
-        history.replaceState(null, '', `${nextUrl.pathname}${nextUrl.search}`);
-      }
-
-      variantButtons.forEach((button) => button.addEventListener('click', () => {
-        activeId = button.dataset.variantId;
-        renderVariant(true);
-      }));
-
-      renderVariant();
-    </script>
+    <script src="../../scripts/work-detail.ts"></script>
   </body>
 </html>
