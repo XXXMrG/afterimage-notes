@@ -28,6 +28,7 @@ export type ArchiveItem = {
   creator: string;
   year: string;
   context: string;
+  background: string;
   variants: PosterVariant[];
 };
 
@@ -61,6 +62,8 @@ export const archiveItems: ArchiveItem[] = [
     creator: 'TOOL',
     year: '2019',
     context: 'Fear Inoculum',
+    background:
+      '收录于 TOOL 2019 年专辑《Fear Inoculum》。“Pneuma”源自希腊语，兼有呼吸、精神与灵魂之意；歌曲借这一概念讨论肉身的限制、意识的醒来，以及人与人共享的生命气息。',
     variants: [
       {
         id: 'pneuma-paper-zine',
@@ -83,6 +86,8 @@ export const archiveItems: ArchiveItem[] = [
     creator: 'Dream Theater',
     year: '2009',
     context: 'Black Clouds & Silver Linings',
+    background:
+      '这首歌由鼓手 Mike Portnoy 写给因癌症离世的父亲 Howard。他没有聚焦最后六个月的病痛，而是回望父子共同度过的四十一年，并在父亲去世前把尚未完成的版本播放给他。',
     variants: [
       {
         id: 'the-best-of-times-paper-zine',
@@ -105,6 +110,8 @@ export const archiveItems: ArchiveItem[] = [
     creator: '普信主义',
     year: '2021',
     context: '单曲',
+    background:
+      '这是一首把网络口语、乡土机械意象与直白情话并置的中文歌曲。长标题已经给出全部动作：一辆下坡的拖拉机，在轰鸣、碰撞与近乎失控的节奏里，把告白一路推向前方。',
     variants: [
       {
         id: 'downhill-love-paper-zine',
@@ -127,6 +134,8 @@ export const archiveItems: ArchiveItem[] = [
     creator: 'HYUKOH',
     year: '2017',
     context: '23',
+    background:
+      '《万里》收录于 HYUKOH 2017 年首张正规专辑《23》，以中文演唱。其音乐录影带在蒙古五处地点取景，旷野、公路与移动中的乐队，让歌曲的行进感获得了具体空间。',
     variants: [
       {
         id: 'wanli-paper-zine',
@@ -149,6 +158,8 @@ export const archiveItems: ArchiveItem[] = [
     creator: 'Radiohead',
     year: '2000',
     context: 'Kid A',
+    background:
+      'Radiohead 把它放在 2000 年专辑《Kid A》的开头。Thom Yorke 在《OK Computer》巡演后的疲惫与失语中写下钢琴雏形，乐队随后用合成器和被数字切分的人声完成它，开启一次重要的创作转向。',
     variants: [
       {
         id: 'right-place-paper-zine',
@@ -183,6 +194,8 @@ export const archiveItems: ArchiveItem[] = [
     creator: '王家卫',
     year: '2000',
     context: '香港电影',
+    background:
+      '故事发生在 1962 年的香港。苏丽珍与周慕云搬进相邻房间，逐渐发现各自伴侣之间的秘密；两人在追索真相的过程中靠近，却始终试图不让自己重复同样的背叛。',
     variants: [
       {
         id: 'in-the-mood-paper-zine',
@@ -217,6 +230,8 @@ export const archiveItems: ArchiveItem[] = [
     creator: '厄休拉·勒古恩',
     year: '1969',
     context: '科幻小说',
+    background:
+      '一名人类使者被派往终年冰封的格森星，争取当地加入星际联盟。那里的居民具有流动的性别状态；他必须跨越自己的成见、政治隔阂与严酷气候，学习如何真正理解另一个世界。',
     variants: [
       {
         id: 'left-hand-paper-zine',
