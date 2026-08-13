@@ -187,7 +187,18 @@ const archiveIndex = archiveItems.map((item) => ({
                 </div>
               </nav>
 
-              <p class="catalog-volume__hint">掠过或聚焦档案签，即时预览</p>
+              <p class="catalog-volume__hint">
+                <span>掠过或聚焦档案签，即时预览</span>
+                <span>点按一行选择作品；页面不会自动跳转</span>
+              </p>
+
+              <button class="catalog-volume__preview" type="button" data-view-selected>
+                <span>
+                  <small>Selected work</small>
+                  <b data-selected-work-title>{firstItem.title}</b>
+                </span>
+                <span>查看海报预览 <i aria-hidden="true">↓</i></span>
+              </button>
 
               <nav class="catalog-pagination" aria-label="图录分页">
                 <button type="button" data-page-previous aria-label="上一册"><span aria-hidden="true">←</span><span>上一册</span></button>

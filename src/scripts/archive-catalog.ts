@@ -97,9 +97,14 @@ const retryImage = document.querySelector<HTMLButtonElement>('[data-retry-image]
 const variantNav = document.querySelector<HTMLElement>('[data-variant-nav]')!;
 const catalogTools = document.querySelector<HTMLDetailsElement>('[data-catalog-tools]');
 const toolsState = document.querySelector<HTMLElement>('[data-tools-state]');
+const viewSelected = document.querySelector<HTMLButtonElement>('[data-view-selected]');
+const selectedWorkTitle = document.querySelector<HTMLElement>('[data-selected-work-title]');
+const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 let requestId = 0;
 let searchTimer = 0;
 let failedVariant: Variant | null = null;
+let suppressIndexClickUntil = 0;
+let indexGesture: { pointerId: number; x: number; y: number; moved: boolean } | null = null;
 
 searchInput.value = state.query;
 sortSelect.value = state.sort;
@@ -181,8 +186,10 @@ function makeIndexEntry(item: IndexItem) {
     button.append(span);
   });
   button.addEventListener('click', () => selectWork(item.id));
-  button.addEventListener('pointerenter', () => selectWork(item.id, false));
-  button.addEventListener('focus', () => selectWork(item.id, false));
+  if (canHover) {
+    button.addEventListener('pointerenter', () => selectWork(item.id));
+    button.addEventListener('focus', () => selectWork(item.id));
+  }
   li.append(button);
   return li;
 }
@@ -261,6 +268,10 @@ function renderCatalog({ select = true } = {}) {
     : '000—000';
   renderPagination(totalPages);
   renderControlState();
+  if (selectedWorkTitle) {
+    selectedWorkTitle.textContent = pageItems.find((item) => item.id === state.itemId)?.title ?? '';
+  }
+  if (viewSelected) viewSelected.disabled = !state.itemId;
   syncUrl();
 
   if (select && state.itemId) void loadViewer(state.itemId, state.variantId);
@@ -419,21 +430,13 @@ async function loadViewer(itemId: string, requestedVariantId?: string) {
   }
 }
 
-function selectWork(itemId: string, scrollOnMobile = true) {
+function selectWork(itemId: string) {
   const item = items.find((candidate) => candidate.id === itemId);
-  if (!item) return;
-  if (item.id === state.itemId) {
-    if (scrollOnMobile && window.matchMedia('(max-width: 820px)').matches) {
-      viewerFrame.scrollIntoView({ behavior: 'auto', block: 'start' });
-    }
-    return;
-  }
+  if (!item || item.id === state.itemId) return;
   state.itemId = item.id;
   state.variantId = state.style === 'all' ? item.defaultVariantId : '';
+  if (selectedWorkTitle) selectedWorkTitle.textContent = item.title;
   void loadViewer(item.id, state.variantId);
-  if (scrollOnMobile && window.matchMedia('(max-width: 820px)').matches) {
-    viewerFrame.scrollIntoView({ behavior: 'auto', block: 'start' });
-  }
 }
 
 function applyFilter(key: 'type' | 'style' | 'decade', value: string) {
@@ -492,6 +495,35 @@ retryImage.addEventListener('click', async () => {
     void loadViewer(state.itemId, state.variantId);
   }
 });
+viewSelected?.addEventListener('click', () => {
+  viewerFrame.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+});
+
+// Mobile browsers usually suppress click after scroll. This extra movement
+// guard keeps a diagonal thumb drag from ever changing the selected work.
+indexList.addEventListener('pointerdown', (event) => {
+  if (event.pointerType !== 'touch') return;
+  indexGesture = { pointerId: event.pointerId, x: event.clientX, y: event.clientY, moved: false };
+});
+indexList.addEventListener('pointermove', (event) => {
+  if (!indexGesture || event.pointerId !== indexGesture.pointerId) return;
+  if (Math.hypot(event.clientX - indexGesture.x, event.clientY - indexGesture.y) > 10) {
+    indexGesture.moved = true;
+  }
+});
+indexList.addEventListener('pointerup', (event) => {
+  if (!indexGesture || event.pointerId !== indexGesture.pointerId) return;
+  if (indexGesture.moved) suppressIndexClickUntil = performance.now() + 400;
+  indexGesture = null;
+});
+indexList.addEventListener('pointercancel', () => {
+  indexGesture = null;
+});
+indexList.addEventListener('click', (event) => {
+  if (performance.now() >= suppressIndexClickUntil) return;
+  event.preventDefault();
+  event.stopImmediatePropagation();
+}, true);
 
 const initialFiltered = filteredItems();
 if (requestedItem && !pageUrl.searchParams.has('page')) {
