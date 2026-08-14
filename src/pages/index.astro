@@ -1,4 +1,5 @@
 ---
+import AssetRecovery from '../components/AssetRecovery.astro';
 import { archiveItems, archiveStats } from '../content/archive';
 import '../styles/global.css';
 import '../styles/home.css';
@@ -14,6 +15,7 @@ const randomIndex = archiveItems.map((item) => ({
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
+    <AssetRecovery />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"

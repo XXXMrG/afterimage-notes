@@ -1,0 +1,67 @@
+---
+// Keep this recovery logic inline and ahead of Astro's hashed assets.
+// If stale HTML references a removed build asset, the page can still reload itself.
+---
+
+<script is:inline>
+  (() => {
+    const ASSET_PREFIX = '/_astro/';
+    const RETRY_PARAM = '__asset_retry';
+    const RECOVERY_KEY = `afterimage:asset-recovery:${window.location.pathname}`;
+    const currentUrl = new URL(window.location.href);
+    const isRetryNavigation = currentUrl.searchParams.has(RETRY_PARAM);
+
+    if (isRetryNavigation) {
+      currentUrl.searchParams.delete(RETRY_PARAM);
+      window.history.replaceState(
+        window.history.state,
+        '',
+        `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`,
+      );
+
+      // Keep the guard active while the retried document loads its own assets.
+      window.setTimeout(() => {
+        try {
+          window.sessionStorage.removeItem(RECOVERY_KEY);
+        } catch {
+          // Storage can be unavailable in strict privacy modes; the URL marker is the fallback guard.
+        }
+      }, 10_000);
+    }
+
+    const isCoreBuildAsset = (target) => {
+      if (target instanceof HTMLLinkElement) {
+        return (
+          target.relList.contains('stylesheet') &&
+          new URL(target.href, window.location.href).pathname.startsWith(ASSET_PREFIX)
+        );
+      }
+
+      if (target instanceof HTMLScriptElement && target.src) {
+        return new URL(target.src, window.location.href).pathname.startsWith(ASSET_PREFIX);
+      }
+
+      return false;
+    };
+
+    window.addEventListener(
+      'error',
+      (event) => {
+        if (!isCoreBuildAsset(event.target)) return;
+
+        try {
+          if (window.sessionStorage.getItem(RECOVERY_KEY)) return;
+          window.sessionStorage.setItem(RECOVERY_KEY, String(Date.now()));
+        } catch {
+          // If storage is blocked, the retry query itself prevents a reload loop.
+          if (isRetryNavigation) return;
+        }
+
+        const retryUrl = new URL(window.location.href);
+        retryUrl.searchParams.set(RETRY_PARAM, Date.now().toString(36));
+        window.location.replace(retryUrl.href);
+      },
+      true,
+    );
+  })();
+</script>
