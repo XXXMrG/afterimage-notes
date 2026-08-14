@@ -258,9 +258,3 @@ export const archiveItems: ArchiveItem[] = [
     ],
   },
 ];
-
-export const archiveStats = {
-  items: archiveItems.length,
-  posters: archiveItems.reduce((total, item) => total + item.variants.length, 0),
-  styles: styleSystems.length,
-};

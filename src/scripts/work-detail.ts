@@ -139,7 +139,6 @@ async function transitionImage(variant: Variant, token: number, initial = false)
 async function renderVariant(initial = false) {
   const variant = item.variants.find((candidate) => candidate.id === activeId) ?? item.variants[0];
   const style = styles.find((candidate) => candidate.id === variant.styleId)!;
-  const variantIndex = item.variants.indexOf(variant);
   const token = ++requestId;
   activeId = variant.id;
   stage.style.setProperty('--accent', variant.accent);
@@ -147,7 +146,6 @@ async function renderVariant(initial = false) {
 
 
   document.querySelector<HTMLElement>('[data-detail-style]')!.textContent = style.englishLabel;
-  document.querySelector<HTMLElement>('[data-detail-count]')!.textContent = `${String(variantIndex + 1).padStart(2, '0')} / ${String(item.variants.length).padStart(2, '0')}`;
   document.querySelector<HTMLElement>('[data-detail-interpretation]')!.textContent = variant.interpretation;
   document.querySelector<HTMLElement>('[data-detail-style-note]')!.textContent = style.shortDescription;
   variantButtons.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.variantId === variant.id)));

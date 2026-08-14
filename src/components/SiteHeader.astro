@@ -1,0 +1,24 @@
+---
+type Props = {
+  actionHref: string;
+  actionLabel: string;
+  detailBack?: boolean;
+};
+
+const { actionHref, actionLabel, detailBack = false } = Astro.props;
+---
+
+<header class="site-header">
+  <a class="site-mark" href="/" aria-label="返回余像札记首页">
+    <span>余像札记</span>
+    <span>Afterimage Notes</span>
+  </a>
+  <p>AI CULTURAL POSTER ARCHIVE</p>
+  <a
+    class="site-header__action"
+    href={actionHref}
+    data-detail-back={detailBack ? true : undefined}
+  >
+    <span aria-hidden="true">←</span><span>{actionLabel}</span>
+  </a>
+</header>

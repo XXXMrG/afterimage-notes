@@ -1,8 +1,8 @@
 ---
 import AssetRecovery from '../../components/AssetRecovery.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
 import {
   archiveItems,
-  archiveStats,
   mediaLabels,
   styleSystems,
 } from '../../content/archive';
@@ -25,7 +25,6 @@ const archiveIndex = archiveItems.map((item) => ({
   year: item.year,
   context: item.context,
   styles: item.variants.map((variant) => variant.styleId),
-  variantCount: item.variants.length,
   defaultVariantId: item.variants[0].id,
   accent: item.variants[0].accent,
 }));
@@ -46,27 +45,12 @@ const archiveIndex = archiveItems.map((item) => ({
     <title>作品图录｜余像札记</title>
   </head>
   <body class="catalog-page">
+    <SiteHeader actionHref="/" actionLabel="返回首页" />
     <main class="archive-shell archive-shell--catalog">
-      <header class="archive-bar">
-        <a class="archive-bar__mark" href="/" aria-label="返回余像札记首页">
-          <span>余像札记</span>
-          <span>Afterimage Notes</span>
-        </a>
-        <p>AI CULTURAL POSTER ARCHIVE</p>
-        <p>{String(archiveStats.items).padStart(2, '0')} WORKS / {String(archiveStats.posters).padStart(2, '0')} POSTERS / {String(archiveStats.styles).padStart(2, '0')} SYSTEMS</p>
-      </header>
-
       <section id="catalog" class="archive archive--standalone" aria-labelledby="archive-heading" data-archive-section>
         <header class="archive__header">
-          <div>
-            <p class="section-kicker">Open collection</p>
-            <h1 id="archive-heading">作品图录</h1>
-          </div>
-          <p class="archive__intro">沿着档案签浏览，<br />让作品先于条件出现。</p>
-          <div class="archive__measure" aria-live="polite">
-            <span data-result-count>{String(archiveStats.items).padStart(3, '0')}</span>
-            <small>件馆藏</small>
-          </div>
+          <h1 id="archive-heading">作品图录</h1>
+          <p class="sr-only" aria-live="polite"><span data-result-count>{archiveItems.length}</span> 件作品</p>
         </header>
 
         <details class="catalog-tools" data-catalog-tools>
@@ -152,16 +136,11 @@ const archiveIndex = archiveItems.map((item) => ({
                 <span data-media-status-text>正在显影</span>
                 <button type="button" data-retry-image hidden>重新显影</button>
               </div>
-              <span class="viewer__folio" data-viewer-folio>{firstItem.archiveNo}</span>
             </div>
 
             <section class="catalog-volume" aria-labelledby="volume-title">
               <header class="catalog-volume__header">
-                <div>
-                  <p class="section-kicker">Browse this volume</p>
-                  <h2 id="volume-title">浏览本册</h2>
-                </div>
-                <p><span data-volume-range>001—007</span><br />第 <span data-current-page>01</span> 册</p>
+                <h2 id="volume-title">选择作品</h2>
               </header>
 
               <nav class="work-index" aria-label="当前图录分册">
@@ -178,7 +157,6 @@ const archiveIndex = archiveItems.map((item) => ({
                         <span class="index-entry__no">{item.archiveNo}</span>
                         <span class="index-entry__title">{item.title}</span>
                         <span class="index-entry__meta">{item.typeLabel} · {item.year}</span>
-                        <span class="index-entry__versions">{String(item.variantCount).padStart(2, '0')}</span>
                       </button>
                     </li>
                   ))}
@@ -191,7 +169,7 @@ const archiveIndex = archiveItems.map((item) => ({
 
               <p class="catalog-volume__hint">
                 <span>掠过或聚焦档案签，即时预览</span>
-                <span>点按一行选择作品；页面不会自动跳转</span>
+                <span>选择作品后，可继续查看海报预览</span>
               </p>
 
               <button class="catalog-volume__preview" type="button" data-view-selected>
@@ -202,10 +180,10 @@ const archiveIndex = archiveItems.map((item) => ({
                 <span>查看海报预览 <i aria-hidden="true">↓</i></span>
               </button>
 
-              <nav class="catalog-pagination" aria-label="图录分页">
-                <button type="button" data-page-previous aria-label="上一册"><span aria-hidden="true">←</span><span>上一册</span></button>
-                <div data-page-window aria-label="选择图录分册"></div>
-                <button type="button" data-page-next aria-label="下一册"><span>下一册</span><span aria-hidden="true">→</span></button>
+              <nav class="catalog-pagination" data-pagination aria-label="作品分页" hidden={archiveItems.length <= PAGE_SIZE}>
+                <button type="button" data-page-previous aria-label="上一页"><span aria-hidden="true">←</span><span>上一页</span></button>
+                <div data-page-window aria-label="选择作品页"></div>
+                <button type="button" data-page-next aria-label="下一页"><span>下一页</span><span aria-hidden="true">→</span></button>
               </nav>
             </section>
 
@@ -239,10 +217,6 @@ const archiveIndex = archiveItems.map((item) => ({
         </div>
       </section>
 
-      <footer class="site-footer">
-        <p>不是复述作品，也不是还原情节。每张海报保存的是模型在一次阅读之后，选择留下的那个视觉关系。</p>
-        <p>Archive grows by work × interpretation × visual system.</p>
-      </footer>
     </main>
 
     <script

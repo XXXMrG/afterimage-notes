@@ -1,8 +1,8 @@
 ---
 import AssetRecovery from '../../components/AssetRecovery.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
 import {
   archiveItems,
-  archiveStats,
   mediaLabels,
   styleSystems,
   type ArchiveItem,
@@ -27,6 +27,7 @@ const firstVariant = item.variants[0];
 const firstStyle = styleSystems.find((style) => style.id === firstVariant.styleId)!;
 const previousItem = archiveItems[(itemIndex - 1 + archiveItems.length) % archiveItems.length];
 const nextItem = archiveItems[(itemIndex + 1) % archiveItems.length];
+const archiveHref = `/archive/?work=${item.id}&poster=${firstVariant.id}`;
 ---
 
 <!doctype html>
@@ -44,20 +45,7 @@ const nextItem = archiveItems[(itemIndex + 1) % archiveItems.length];
     <title>{item.title}｜余像札记</title>
   </head>
   <body class="detail-page">
-    <header class="detail-bar">
-      <a class="detail-mark" href="/" aria-label="返回余像札记首页">
-        <span>余像札记</span>
-        <span>Afterimage Notes</span>
-      </a>
-      <p>AI CULTURAL POSTER ARCHIVE</p>
-      <a
-        class="detail-back"
-        data-detail-back
-        href={`/archive/?work=${item.id}&poster=${firstVariant.id}`}
-      >
-        <span aria-hidden="true">←</span><span>返回作品目录</span>
-      </a>
-    </header>
+    <SiteHeader actionHref={archiveHref} actionLabel="返回作品目录" detailBack />
 
     <main>
       <article
@@ -68,8 +56,6 @@ const nextItem = archiveItems[(itemIndex + 1) % archiveItems.length];
         aria-busy="true"
         data-media-state="loading"
       >
-        <p class="detail-folio">{item.archiveNo} / {String(archiveStats.items).padStart(2, '0')}</p>
-
         <figure class="detail-poster">
           <div class="detail-poster__sheet">
             <img
@@ -91,7 +77,6 @@ const nextItem = archiveItems[(itemIndex + 1) % archiveItems.length];
           </div>
           <figcaption>
             <span data-detail-style>{firstStyle.englishLabel}</span>
-            <span data-detail-count>01 / {String(item.variants.length).padStart(2, '0')}</span>
           </figcaption>
         </figure>
 
@@ -119,7 +104,6 @@ const nextItem = archiveItems[(itemIndex + 1) % archiveItems.length];
                     data-variant-id={variant.id}
                     aria-pressed={index === 0 ? 'true' : 'false'}
                   >
-                    <b>{String(index + 1).padStart(2, '0')}</b>
                     <span>{style.label}</span>
                     <small>{style.englishLabel}</small>
                   </button>
@@ -161,10 +145,9 @@ const nextItem = archiveItems[(itemIndex + 1) % archiveItems.length];
           <a
             class="detail-step__index"
             data-detail-index
-            href={`/archive/?work=${item.id}&poster=${firstVariant.id}`}
+            href={archiveHref}
           >
             <span>返回作品目录</span>
-            <b>{String(archiveStats.items).padStart(2, '0')} 件馆藏</b>
           </a>
           <a class="detail-step__next" data-adjacent-work href={`/works/${nextItem.id}/`}>
             <span class="detail-step__direction">下一件作品</span>

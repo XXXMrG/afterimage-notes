@@ -11,7 +11,6 @@ type IndexItem = {
   year: string;
   context: string;
   styles: string[];
-  variantCount: number;
   defaultVariantId: string;
   accent: string;
 };
@@ -81,8 +80,7 @@ const indexList = document.querySelector<HTMLOListElement>('[data-work-index]')!
 const emptyNote = document.querySelector<HTMLElement>('[data-empty]')!;
 const resetFilters = document.querySelector<HTMLButtonElement>('[data-reset-filters]')!;
 const resultCount = document.querySelector<HTMLElement>('[data-result-count]')!;
-const currentPage = document.querySelector<HTMLElement>('[data-current-page]')!;
-const volumeRange = document.querySelector<HTMLElement>('[data-volume-range]')!;
+const pagination = document.querySelector<HTMLElement>('[data-pagination]')!;
 const pageWindow = document.querySelector<HTMLElement>('[data-page-window]')!;
 const previousPage = document.querySelector<HTMLButtonElement>('[data-page-previous]')!;
 const nextPage = document.querySelector<HTMLButtonElement>('[data-page-next]')!;
@@ -177,7 +175,6 @@ function makeIndexEntry(item: IndexItem) {
     ['index-entry__no', item.archiveNo],
     ['index-entry__title', item.title],
     ['index-entry__meta', `${item.typeLabel} · ${item.year}`],
-    ['index-entry__versions', String(item.variantCount).padStart(2, '0')],
   ];
   parts.forEach(([className, text]) => {
     const span = document.createElement('span');
@@ -207,7 +204,13 @@ function paginationTokens(totalPages: number, page: number) {
 }
 
 function renderPagination(totalPages: number) {
+  pagination.hidden = totalPages <= 1;
   pageWindow.replaceChildren();
+  if (totalPages <= 1) {
+    previousPage.disabled = true;
+    nextPage.disabled = true;
+    return;
+  }
   paginationTokens(totalPages, state.page).forEach((token) => {
     if (token === 'ellipsis') {
       const span = document.createElement('span');
@@ -218,8 +221,8 @@ function renderPagination(totalPages: number) {
     }
     const button = document.createElement('button');
     button.type = 'button';
-    button.textContent = String(token).padStart(2, '0');
-    button.setAttribute('aria-label', `第 ${token} 册`);
+    button.textContent = String(token);
+    button.setAttribute('aria-label', `第 ${token} 页`);
     if (token === state.page) button.setAttribute('aria-current', 'page');
     button.addEventListener('click', () => setPage(token));
     pageWindow.append(button);
@@ -236,7 +239,7 @@ function renderControlState() {
   sortSelect.value = state.sort;
   const activeCount = [state.query, state.type !== 'all', state.style !== 'all', state.decade !== 'all', state.sort !== 'archive']
     .filter(Boolean).length;
-  if (toolsState) toolsState.textContent = activeCount ? `${activeCount} 项条件` : '全部馆藏';
+  if (toolsState) toolsState.textContent = activeCount ? '已筛选' : '全部馆藏';
 }
 
 function renderCatalog({ select = true } = {}) {
@@ -261,11 +264,7 @@ function renderCatalog({ select = true } = {}) {
   viewer.hidden = false;
   viewerFrame.hidden = filtered.length === 0;
   viewerNotes.hidden = filtered.length === 0;
-  resultCount.textContent = String(filtered.length).padStart(3, '0');
-  currentPage.textContent = String(state.page).padStart(2, '0');
-  volumeRange.textContent = filtered.length
-    ? `${String(start + 1).padStart(3, '0')}—${String(start + pageItems.length).padStart(3, '0')}`
-    : '000—000';
+  resultCount.textContent = String(filtered.length);
   renderPagination(totalPages);
   renderControlState();
   if (selectedWorkTitle) {
@@ -355,12 +354,12 @@ function renderVariantNav(item: FullItem, variant: Variant) {
   const available = state.style === 'all'
     ? item.variants
     : item.variants.filter((candidate) => candidate.styleId === state.style);
-  available.forEach((candidate, index) => {
+  available.forEach((candidate) => {
     const style = styles.find((entry) => entry.id === candidate.styleId)!;
     const button = document.createElement('button');
     button.type = 'button';
     button.dataset.selectVariant = candidate.id;
-    button.textContent = `${String(index + 1).padStart(2, '0')} ${style.label}`;
+    button.textContent = style.label;
     button.setAttribute('aria-pressed', String(candidate.id === variant.id));
     button.addEventListener('click', () => {
       if (candidate.id === state.variantId) return;
@@ -382,7 +381,6 @@ async function renderViewer(item: FullItem, variant: Variant) {
   renderVariantNav(item, variant);
 
 
-  viewer.querySelector<HTMLElement>('[data-viewer-folio]')!.textContent = item.archiveNo;
   viewer.querySelector<HTMLElement>('[data-viewer-type]')!.textContent = item.typeLabel;
   viewer.querySelector<HTMLElement>('[data-viewer-year]')!.textContent = item.year;
   viewer.querySelector<HTMLElement>('[data-viewer-context]')!.textContent = item.context;
